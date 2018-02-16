@@ -8,11 +8,32 @@ import almath
 import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+rospy.init_node('mover', anonymous=True)
+p = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size = 100)
+r = rospy.Rate(100)
 
-p = rospy.Publisher('nao_dcm/Head_controller/command', JointTrajectory, queue_size = 100)
 jt = JointTrajectory()
-jt.points.positions =0.0;                 
-jt.points.velocities =1.0;
-jt.points.accelerations =0.0;
-jt.points.effort =0.0;
-p.publish(jt)
+jtp = JointTrajectoryPoint()
+jtp.positions = [0,2]
+jtp.velocities = []
+jtp.accelerations = []
+jtp.effort = []
+
+jt.joint_names = ['HeadPitch','HeadYaw']
+jtp.time_from_start = rospy.Duration(0.5)
+jt.points.append(jtp)
+
+
+def myhook():
+  print "over!"
+
+rospy.on_shutdown(myhook)
+
+while not rospy.is_shutdown():
+	x = 0
+	while x < 30:
+		p.publish(jt)
+		x += 1
+		
+		
+	
