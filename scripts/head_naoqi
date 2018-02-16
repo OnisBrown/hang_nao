@@ -9,19 +9,33 @@ import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 rospy.init_node('mover', anonymous=True)
-p = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size = 100)
+ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size = 100)
 r = rospy.Rate(100)
-
 jt = JointTrajectory()
 jtp = JointTrajectoryPoint()
-jtp.positions = [0,2]
+jtp.positions = [0,0]
 jtp.velocities = []
 jtp.accelerations = []
 jtp.effort = []
 
-jt.joint_names = ['HeadPitch','HeadYaw']
-jtp.time_from_start = rospy.Duration(0.5)
-jt.points.append(jtp)
+def pub(p, jt)
+	p.publish(jt)
+	print jt
+
+def head_shake()
+	jt.joint_names = ['HeadPitch','HeadYaw']
+	jtp.time_from_start = rospy.Duration(0.5)
+	
+	while x < 5:
+		jtp.positions = [-0.7,1.6]
+		jt.points.append(jtp)
+		pub(ph, jt)
+		jtp.positions = [-0.7,0.0]
+		jt.points.append(jtp)
+		pub(ph, jt)
+		jtp.positions = [-0.7,-1.6]
+		jt.points.append(jtp)
+		pub(ph, jt)
 
 
 def myhook():
@@ -30,10 +44,13 @@ def myhook():
 rospy.on_shutdown(myhook)
 
 while not rospy.is_shutdown():
-	x = 0
-	while x < 30:
-		p.publish(jt)
-		x += 1
+		
+		
+		head_shake()
+		
+		except KeyboardInterrupt:
+			sys.exit()
+
 		
 		
 	
