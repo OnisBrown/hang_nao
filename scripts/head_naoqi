@@ -10,42 +10,53 @@ import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 rospy.init_node('mover', anonymous=True)
-ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size = 10)
-r = rospy.Rate(10)
+ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=100)
+r = rospy.Rate(100)
+jt = JointTrajectory()
+jtp = JointTrajectoryPoint()
 
-
-def pub(p, jt):
+def pub(p):
 	p.publish(jt)
-	print jt
 
 
-def head_move(jt, jtp, goal):
-	jt.joint_names = ['HeadPitch','HeadYaw']
+def head_move(goal):
 	jtp.positions = goal
-	jtp.time_from_start = rospy.Duration(0.5)
+	jtp.time_from_start = rospy.Duration(0.3)
 	jt.points.append(jtp)
-	pub(ph, jt)
 
 
-def move_setup():
-	jt = JointTrajectory()
-	jtp = JointTrajectoryPoint()
-	jtp.positions = [0,0]
+def move_setup(joints):
+
+	jt.joint_names = joints
+	jt.points = []
+	jtp.positions = []
 	jtp.velocities = []
 	jtp.accelerations = []
 	jtp.effort = []
-	return jt, jtp
+	jtp.time_from_start = rospy.Duration()
 
 
 def head_shake(sad):
-	joint_reset = move_setup()
+	joints = ['HeadPitch', 'HeadYaw']
 	if sad:
-		goal = [0.4, 0.5]
-		head_move(joint_reset[0], joint_reset[1], goal)
+		time.sleep(0.5)
+		move_setup(joints)
+		goal = [0.4, 1.0]
+		head_move(goal)
+		pub(ph)
+		time.sleep(0.5)
+		move_setup(joints)
+		goal[1] -= 1
+		head_move(goal)
+		pub(ph)
+		time.sleep(0.5)
+		move_setup(joints)
+		goal[1] -= 1
+		head_move(goal)
+		pub(ph)
 	else:
 		goal = [0.0, 1.0]
-		head_move(joint_reset[0], joint_reset[1], goal)
-	print "one shake"
+		head_move(goal)
 
 
 def myHook():
@@ -56,6 +67,7 @@ rospy.on_shutdown(myHook)
 
 while not rospy.is_shutdown():
 	try:
+
 		head_shake(True)
 
 	except KeyboardInterrupt:
