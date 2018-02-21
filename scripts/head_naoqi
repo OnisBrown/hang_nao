@@ -8,6 +8,7 @@ import almath
 import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+
 rospy.init_node('mover', anonymous=True)
 ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size = 10)
 r = rospy.Rate(10)
@@ -18,22 +19,13 @@ def pub(p, jt):
 	print jt
 
 
-	
-def head_shake(jt, jtp):
+def head_move(jt, jtp, goal):
 	jt.joint_names = ['HeadPitch','HeadYaw']
-	jtp.positions = [-0.7,1.6]
-	jtp.time_from_start = rospy.Duration(rospy.get_time())
+	jtp.positions = goal
+	jtp.time_from_start = rospy.Duration(0.5)
 	jt.points.append(jtp)
 	pub(ph, jt)
-	jtp.positions = [-0.7,0.0]
-	jtp.time_from_start = rospy.Duration(rospy.get_time())
-	jt.points.append(jtp)
-	pub(ph, jt)
-	jtp.positions = [-0.7,-1.6]
-	jtp.time_from_start = rospy.Duration(rospy.get_time())
-	jt.points.append(jtp)
-	pub(ph, jt)
-	print "one shake"
+
 
 def move_setup():
 	jt = JointTrajectory()
@@ -42,22 +34,29 @@ def move_setup():
 	jtp.velocities = []
 	jtp.accelerations = []
 	jtp.effort = []
-	return (jt, jtp)
-	
-def myhook():
-  print "shutting down"
+	return jt, jtp
 
-rospy.on_shutdown(myhook)
+
+def head_shake(sad):
+	joint_reset = move_setup()
+	if sad:
+		goal = [0.4, 0.5]
+		head_move(joint_reset[0], joint_reset[1], goal)
+	else:
+		goal = [0.0, 1.0]
+		head_move(joint_reset[0], joint_reset[1], goal)
+	print "one shake"
+
+
+def myHook():
+	print "shutting down"
+
+
+rospy.on_shutdown(myHook)
 
 while not rospy.is_shutdown():
-		
-		try:	
-			joint_reset
-			head_shake()
-		
-		except KeyboardInterrupt:
-			sys.exit()
+	try:
+		head_shake(True)
 
-		
-		
-	
+	except KeyboardInterrupt:
+		sys.exit()
