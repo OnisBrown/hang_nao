@@ -26,6 +26,26 @@ points:
   accelerations: []
   effort: []
 
+#example arm command
+header: 
+  seq: 217
+  stamp: 
+    secs: 0
+    nsecs:         0
+  frame_id: ''
+joint_names: ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
+points: 
+  - 
+    positions: [0.03, 0.0, -0.0, -0.0, 0.0]
+    velocities: []
+    accelerations: []
+    effort: []
+    time_from_start: 
+      secs: 1
+      nsecs:         0
+---
+
+
 #installation
 
 # Extra packages

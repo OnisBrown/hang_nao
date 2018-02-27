@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/scripts/head_naoqi" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/Naosim.md" afterPath="$PROJECT_DIR$/Naosim.md" />
+      <change beforePath="$PROJECT_DIR$/scripts/move_naoqi" afterPath="$PROJECT_DIR$/scripts/move_naoqi" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,8 +17,8 @@
       <file leaf-file-name="move_naoqi" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/move_naoqi">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="45" column="25" lean-forward="true" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="25" />
+            <state relative-caret-position="288">
+              <caret line="23" column="95" lean-forward="false" selection-start-line="23" selection-start-column="95" selection-end-line="23" selection-end-column="95" />
               <folding />
             </state>
           </provider>
@@ -37,8 +38,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="552" />
-    <option name="y" value="46" />
+    <option name="x" value="756" />
+    <option name="y" value="-4" />
     <option name="width" value="1398" />
     <option name="height" value="1076" />
   </component>
@@ -225,8 +226,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/move_naoqi">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="45" column="25" lean-forward="true" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="25" />
+        <state relative-caret-position="288">
+          <caret line="23" column="95" lean-forward="false" selection-start-line="23" selection-start-column="95" selection-end-line="23" selection-end-column="95" />
           <folding />
         </state>
       </provider>
