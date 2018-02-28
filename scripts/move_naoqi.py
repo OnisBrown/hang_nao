@@ -60,10 +60,10 @@ class Mover:
 			self.move_setup()
 			self.jt.joint_names = self.LArmJ
 			goal = [0.0, 0.0, 0.0, 0.0, 0.0]
-			self.move(goal, self.ph)
+			self.move(goal, self.pal)
 			self.jt.joint_names = self.RArmJ
 			goal = [0.0, 0.0, 0.0, 0.0, 0.0]
-			self.move(goal, self.ph)
+			self.move(goal, self.par)
 
 		except KeyboardInterrupt:
 			sys.exit()

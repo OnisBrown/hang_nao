@@ -7,4 +7,6 @@ import almath
 import rospy
 import roslib
 from move_naoqi import Mover
+import game
+
 

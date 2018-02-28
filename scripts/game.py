@@ -3,10 +3,14 @@
 import sys
 import time
 
-class HangMan:
-	
+class player:
 	def __init__(self):
+		self.score = 0
+		self.names = []
+		self.faces = []
 		
+
+class HangMan:
 	def game(self):
 		name = raw_input("What is your name? ")
 		print "Hello, " + name, "Time to play hangman!"
@@ -16,15 +20,11 @@ class HangMan:
 		time.sleep(0.5)
 		#here we set the secret
 		word = "secret"
-
 		#creates a variable with an empty value
 		guesses = ''
-
 		#determine the number of turns
 		turns = 8
-
 		# Create a while loop
-
 		#check if the turns are more than zero
 		while turns > 0:         
 			# make a counter that starts with zero
@@ -42,7 +42,8 @@ class HangMan:
 			if failed == 0:        
 				print "You won"  
 				break              
-			print
+			
+			print "next round"
 
 			# ask the user go guess a character
 			guess = raw_input("guess a character:") 
@@ -52,13 +53,10 @@ class HangMan:
 
 			# if the guess is not found in the secret word
 			if guess not in word:  
-		 
-			 # turns counter decreases with 1 (now 9)
 				turns -= 1        
 		 
 			# print wrong
-				print "Wrong
-		"    
+				print "Wrong"    
 		 
 			# how many turns are left
 				print "You have", + turns, 'more guesses' 
@@ -67,3 +65,7 @@ class HangMan:
 				if turns == 0:           
 			
 					print "You Loose"  
+start = HangMan()					
+start.game()
+
+sys.exit()
