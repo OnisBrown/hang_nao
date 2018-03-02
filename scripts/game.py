@@ -11,7 +11,7 @@ class player:
 		
 
 class HangMan:
-	def game(self):
+	def game(self): # code built on from program made on http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 		name = raw_input("What is your name? ")
 		print "Hello, " + name, "Time to play hangman!"
 		print ""
