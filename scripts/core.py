@@ -23,8 +23,8 @@ mood = 0.5
 
 while not rospy.is_shutdown():
 	try:
-		NM.body_reset()
-		#NM.head_shake()
+		#NM.body_reset()
+		NM.head_shake(mood)
 		#NM.head_nod()
 
 	except KeyboardInterrupt:

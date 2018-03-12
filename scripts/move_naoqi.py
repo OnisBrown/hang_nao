@@ -82,7 +82,7 @@ class Mover:
 		try:
 			self.jt.joint_names = ['HeadPitch', 'HeadYaw']
 			p = self.ph
-			if sad:
+			if mood:
 				self.interval = 0.4
 				goal = [0.0, 0.0]
 				self.move(goal, p)
@@ -114,11 +114,11 @@ class Mover:
 			i = self.interval
 			if mood >= 0.5:
 				i = 0.5
-				goal = [0.4, 1.0]
+				goal = [0.0, 1.0]
 
 			else:
 				i = 0.2
-				goal = [0.0, 1.0]
+				goal = [0.4, 1.0]
 			
 			self.move(goal, p)
 			rospy.sleep(i)
