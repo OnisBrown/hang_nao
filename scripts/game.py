@@ -10,21 +10,24 @@ class player:
 		self.faces = []
 		
 
-class HangMan:
-	def game(self): # code built on from program made on http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
+class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
+	def game(self):
 		name = raw_input("What is your name? ")
 		print "Hello, " + name, "Time to play hangman!"
 		print ""
 		time.sleep(1)
 		print "Start guessing..."
 		time.sleep(0.5)
+
 		#here we set the secret
 		word = "secret"
+
 		#creates a variable with an empty value
 		guesses = ''
+
 		#determine the number of turns
 		turns = 8
-		# Create a while loop
+
 		#check if the turns are more than zero
 		while turns > 0:         
 			# make a counter that starts with zero
@@ -63,9 +66,5 @@ class HangMan:
 		 
 			# if the turns are equal to zero
 				if turns == 0:           
-			
-					print "You Loose"  
-start = HangMan()					
-start.game()
 
-sys.exit()
+					print "You Loose"

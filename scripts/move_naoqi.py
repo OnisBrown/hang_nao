@@ -135,21 +135,3 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
-# message on program exit
-def my_hook():
-	print "shutting down"
-
-
-rospy.on_shutdown(my_hook)
-
-test = Mover()
-mood = 0.5
-
-while not rospy.is_shutdown():
-	try:
-		test.body_reset()
-		#test.head_shake(False)
-		#test.head_nod(True)
-
-	except KeyboardInterrupt:
-		sys.exit()
