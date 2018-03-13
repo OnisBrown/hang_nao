@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+# !/usr/bin/env python2.7
 
 import sys
 import naoqi
@@ -13,19 +13,19 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 class Mover:
 	def __init__(self):
 		rospy.init_node('mover', anonymous=True)
-		
+
 		# publishers for each robot body part used
 		self.ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=100)
 		self.pal = rospy.Publisher('/nao_dcm/LeftArm_controller/command', JointTrajectory, queue_size=100)
 		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=100)
-		
+
 		self.r = rospy.Rate(100)
-		
+
 		# message objects and default message intervals
 		self.jt = JointTrajectory()
 		self.jtp = JointTrajectoryPoint()
 		self.interval = 0.5
-		
+
 		# joint names for each body part used by related message
 		self.headJ = ['HeadPitch', 'HeadYaw']
 		self.LArmJ = ['LElbowRoll', 'LElbowYaw', 'LShoulderPitch', 'LShoulderRoll', 'LWristYaw']
@@ -47,6 +47,7 @@ class Mover:
 
 		except KeyboardInterrupt:
 			sys.exit()
+
 	# method for setting up move messages by setting all movement parameters to null
 	def move_setup(self):
 		try:
@@ -59,6 +60,7 @@ class Mover:
 
 		except KeyboardInterrupt:
 			sys.exit()
+
 	# method for returning the robot to a neutral position
 	def body_reset(self):
 		try:
@@ -82,44 +84,44 @@ class Mover:
 		try:
 			self.jt.joint_names = ['HeadPitch', 'HeadYaw']
 			p = self.ph
-			if mood:
-				self.interval = 0.4
-				goal = [0.0, 0.0]
-				self.move(goal, p)
-				rospy.sleep(i)
-				goal[0] += 0.6
-				self.move(goal, p)
-				rospy.sleep(i)
-				goal[1] -= 0.6
-				self.move(goal, p)
-				rospy.sleep(i)
+			if mood >= 0.5:
+				self.interval = 0.6
+				sharp = 0.6
 
 			else:
-				self.interval = 0.5
-				goal = [0.0, 0.0]
-				self.move(goal, p)
-				goal[0] += 1
-				self.move(goal, p)
-				goal[0] -= 1
-				self.move(goal, p)
+				self.interval = 0.4
+				sharp = 0.3
+
+			i = self.interval
+			goal = [0.0, 0.0]
+			self.move(goal, p)
+			rospy.sleep(i)
+			goal[0] += sharp
+			self.move(goal, p)
+			rospy.sleep(i)
+			goal[0] -= sharp
+			self.move(goal, p)
+			rospy.sleep(i)
 
 		except KeyboardInterrupt:
 			sys.exit()
-	
+
 	# method for making the robot shake it's head
 	def head_shake(self, mood):
 		try:
 			self.jt.joint_names = ['HeadPitch', 'HeadYaw']
 			p = self.ph
-			i = self.interval
+
+
 			if mood >= 0.5:
-				i = 0.5
+				self.interval = 0.5
 				goal = [0.0, 1.0]
 
 			else:
-				i = 0.2
+				self.interval = 0.2
 				goal = [0.4, 1.0]
-			
+
+			i = self.interval
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal[1] -= 1

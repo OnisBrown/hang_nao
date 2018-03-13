@@ -3,7 +3,7 @@
 import sys
 import time
 
-class player:
+class Player:
 	def __init__(self):
 		self.score = 0
 		self.names = []
@@ -11,9 +11,14 @@ class player:
 		
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
+	def __init__(self):
+		self.name = raw_input("What is your name? ")
+
+
+
 	def game(self):
-		name = raw_input("What is your name? ")
-		print "Hello, " + name, "Time to play hangman!"
+
+		print "Hello, " + self.name, "Time to play hangman!"
 		print ""
 		time.sleep(1)
 		print "Start guessing..."
@@ -29,42 +34,42 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		turns = 8
 
 		#check if the turns are more than zero
-		while turns > 0:         
+		while turns > 0:
 			# make a counter that starts with zero
-			failed = 0             
+			failed = 0
 
-			# for every character in     
-			for char in word:      
-				if char in guesses:    
-					print char,    
+			# for every character in
+			for char in word:
+				if char in guesses:
+					print char,
 
 				else:
-					print "_",     
-					failed += 1    
+					print "_",
+					failed += 1
 
-			if failed == 0:        
-				print "You won"  
-				break              
-			
+			if failed == 0:
+				print "You won"
+				break
+
 			print "next round"
 
 			# ask the user go guess a character
-			guess = raw_input("guess a character:") 
+			guess = raw_input("guess a character:")
 
 			# set the players guess to guesses
-			guesses += guess                    
+			guesses += guess
 
 			# if the guess is not found in the secret word
-			if guess not in word:  
-				turns -= 1        
-		 
+			if guess not in word:
+				turns -= 1
+
 			# print wrong
-				print "Wrong"    
-		 
+				print "Wrong"
+
 			# how many turns are left
-				print "You have", + turns, 'more guesses' 
-		 
+				print "You have", + turns, 'more guesses'
+
 			# if the turns are equal to zero
-				if turns == 0:           
+				if turns == 0:
 
 					print "You Loose"
