@@ -84,7 +84,7 @@ class Mover:
 		try:
 			self.jt.joint_names = ['HeadPitch', 'HeadYaw']
 			p = self.ph
-			
+
 			if mood >= 0.5:
 				self.interval = 0.6
 				sharp = 0.6
