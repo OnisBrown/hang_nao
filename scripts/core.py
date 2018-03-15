@@ -42,10 +42,13 @@ def mover(mc):
 
 while not rospy.is_shutdown():
 	try:
-		mood = float(raw_input("mood: "))
-		choice = int(raw_input("select movement "))
-		print choice
-		mover(choice)
+
+		#mood = float(raw_input("mood: "))
+		#choice = int(raw_input("select movement "))
+		#print choice
+		#mover(choice)
+
+		NG.game()
 
 	except KeyboardInterrupt:
 		sys.exit()

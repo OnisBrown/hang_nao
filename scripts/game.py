@@ -2,6 +2,7 @@
 
 import sys
 import time
+from random import randint
 
 class Player:
 	def __init__(self):
@@ -12,64 +13,79 @@ class Player:
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
-		self.name = raw_input("What is your name? ")
-
-
+		lm = open("medium.txt", "r")
+		lh = open("hard.txt", "r")
+		am = lm.read()
+		ah = lh.read()
+		self.sm = am.split()
+		self.sh = ah.split()
 
 	def game(self):
+		name = raw_input("What is your name? ")
+		hard = raw_input("play on hard mode? (y/n) ")
 
-		print "Hello, " + self.name, "Time to play hangman!"
+		wm = self.sm[randint(0, 212)]
+		wh = self.sh[randint(0, 212)]
+
+		if hard == "y":
+			word = wh
+		else:
+			word = wm
+
+		print "Hello, " + name, "Time to play hangman!"
 		print ""
 		time.sleep(1)
 		print "Start guessing..."
 		time.sleep(0.5)
 
-		#here we set the secret
-		word = "secret"
-
 		#creates a variable with an empty value
 		guesses = ''
 
 		#determine the number of turns
-		turns = 8
+		turns = 12
 
-		#check if the turns are more than zero
-		while turns > 0:
-			# make a counter that starts with zero
-			failed = 0
+		try:
+			#check if the turns are more than zero
+			while turns > 0:
+				# make a counter that starts with zero
+				failed = 0
 
-			# for every character in
-			for char in word:
-				if char in guesses:
-					print char,
+				# for every character in
+				for char in word:
+					if char in guesses:
+						print char,
 
-				else:
-					print "_",
-					failed += 1
+					else:
+						print "_",
+						failed += 1
 
-			if failed == 0:
-				print "You won"
-				break
+				if failed == 0:
+					print "\nYou won"
+					break
 
-			print "next round"
+				print "\n next round"
 
-			# ask the user go guess a character
-			guess = raw_input("guess a character:")
+				# ask the user go guess a character
+				guess = raw_input("guess a character: ")
 
-			# set the players guess to guesses
-			guesses += guess
+				if guess == "!": # if the user inputs an exclamation mark exit the game
+					break
+				# set the players guess to guesses
+				guesses += guess
 
-			# if the guess is not found in the secret word
-			if guess not in word:
-				turns -= 1
+				# if the guess is not found in the secret word
+				if guess not in word:
+					turns -= 1
 
-			# print wrong
-				print "Wrong"
+				# print wrong
+					print "\n Wrong"
 
-			# how many turns are left
-				print "You have", + turns, 'more guesses'
+				# how many turns are left
+					print "You have", + turns, 'more guesses'
 
-			# if the turns are equal to zero
-				if turns == 0:
+				# if the turns are equal to zero
+					if turns == 0:
+						print "You Loose"
 
-					print "You Loose"
+		except KeyboardInterrupt:
+			sys.exit()

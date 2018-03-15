@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/scripts/core.py" afterPath="$PROJECT_DIR$/scripts/core.py" />
-      <change beforePath="$PROJECT_DIR$/scripts/move_naoqi.py" afterPath="$PROJECT_DIR$/scripts/move_naoqi.py" />
+      <change beforePath="$PROJECT_DIR$/scripts/game.py" afterPath="$PROJECT_DIR$/scripts/game.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,10 +14,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="move_naoqi.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="move_naoqi.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="560">
+            <state relative-caret-position="-718">
               <caret line="79" column="40" lean-forward="false" selection-start-line="79" selection-start-column="40" selection-end-line="79" selection-end-column="40" />
               <folding>
                 <element signature="e#27#37#0" expanded="true" />
@@ -27,11 +26,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="core.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="core.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/core.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="718">
-              <caret line="47" column="21" lean-forward="true" selection-start-line="47" selection-start-column="21" selection-end-line="47" selection-end-column="21" />
+              <caret line="50" column="8" lean-forward="false" selection-start-line="50" selection-start-column="8" selection-end-line="50" selection-end-column="8" />
               <folding>
                 <element signature="e#25#35#0" expanded="true" />
               </folding>
@@ -42,9 +41,11 @@
       <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="844">
-              <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="718">
+              <caret line="87" column="30" lean-forward="false" selection-start-line="87" selection-start-column="30" selection-end-line="87" selection-end-column="30" />
+              <folding>
+                <element signature="e#26#36#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -59,9 +60,9 @@
       <list>
         <option value="$PROJECT_DIR$/scripts/head_naoqi" />
         <option value="$PROJECT_DIR$/scripts/move_naoqi" />
+        <option value="$PROJECT_DIR$/scripts/move_naoqi.py" />
         <option value="$PROJECT_DIR$/scripts/game.py" />
         <option value="$PROJECT_DIR$/scripts/core.py" />
-        <option value="$PROJECT_DIR$/scripts/move_naoqi.py" />
       </list>
     </option>
   </component>
@@ -92,7 +93,7 @@
     </entry>
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -105,32 +106,7 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="hang-nao" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hang-nao" type="47feb1d3:ProjectViewModuleNode" />
-            </path>
-            <path>
-              <item name="hang-nao" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hang-nao" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="hang-nao" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hang-nao" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hang-nao" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="hang-nao" type="462c0819:PsiDirectoryNode" />
-              <item name="scripts" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
@@ -259,30 +235,32 @@
     <entry file="file://$PROJECT_DIR$/scripts/head_naoqi" />
     <entry file="file://$PROJECT_DIR$/scripts/head_naoqi" />
     <entry file="file://$PROJECT_DIR$/scripts/move_naoqi" />
+    <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-718">
+          <caret line="79" column="40" lean-forward="false" selection-start-line="79" selection-start-column="40" selection-end-line="79" selection-end-column="40" />
+          <folding>
+            <element signature="e#27#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="844">
-          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="718">
+          <caret line="87" column="30" lean-forward="false" selection-start-line="87" selection-start-column="30" selection-end-line="87" selection-end-column="30" />
+          <folding>
+            <element signature="e#26#36#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/core.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="718">
-          <caret line="47" column="21" lean-forward="true" selection-start-line="47" selection-start-column="21" selection-end-line="47" selection-end-column="21" />
+          <caret line="50" column="8" lean-forward="false" selection-start-line="50" selection-start-column="8" selection-end-line="50" selection-end-column="8" />
           <folding>
             <element signature="e#25#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="560">
-          <caret line="79" column="40" lean-forward="false" selection-start-line="79" selection-start-column="40" selection-end-line="79" selection-end-column="40" />
-          <folding>
-            <element signature="e#27#37#0" expanded="true" />
           </folding>
         </state>
       </provider>
