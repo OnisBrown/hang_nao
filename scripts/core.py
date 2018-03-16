@@ -34,6 +34,7 @@ def mover(mc):
 		return
 	if mc == 3:
 		NM.cheer()
+		NM.cheer()
 		return
 	else:
 		print "Invalid movement"
@@ -43,12 +44,12 @@ def mover(mc):
 while not rospy.is_shutdown():
 	try:
 
-		#mood = float(raw_input("mood: "))
-		#choice = int(raw_input("select movement "))
-		#print choice
-		#mover(choice)
+		mood = float(raw_input("mood: "))
+		choice = int(raw_input("select movement "))
+		print choice
+		mover(choice)
 
-		NG.game()
+		#NG.game()
 
 	except KeyboardInterrupt:
 		sys.exit()

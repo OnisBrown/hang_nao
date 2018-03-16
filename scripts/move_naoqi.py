@@ -148,6 +148,7 @@ class Mover:
 
 	def cheer(self):
 		try:
+			i = self.interval
 			self.jt.joint_names = self.LHJ
 			goal = [1.0]
 			self.move(goal, self.phl)
@@ -160,7 +161,20 @@ class Mover:
 			self.jt.joint_names = self.RArmJ
 			goal = [1.0, 0.5, -1.5, -1.0, 0.0]
 			self.move(goal, self.par)
-
+			rospy.sleep(i)
+			self.jt.joint_names = self.LArmJ
+			goal = [-1.0, -0.5, -1.5, 0.6, 0.0]
+			self.move(goal, self.pal)
+			self.jt.joint_names = self.RArmJ
+			goal = [1.0, 0.5, -1.5, -0.6, 0.0]
+			self.move(goal, self.par)
+			rospy.sleep(i)
+			self.jt.joint_names = self.LArmJ
+			goal = [-1.0, -0.5, -1.5, 1.0, 0.0]
+			self.move(goal, self.pal)
+			self.jt.joint_names = self.RArmJ
+			goal = [1.0, 0.5, -1.5, -1.0, 0.0]
+			self.move(goal, self.par)
 
 		except KeyboardInterrupt:
 			sys.exit()
