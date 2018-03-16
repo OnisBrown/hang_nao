@@ -5,6 +5,7 @@ import naoqi
 from naoqi import ALProxy
 import time
 import almath
+import numpy
 import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -20,6 +21,7 @@ class Mover:
 		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=100)
 		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=100)
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
+		self.cs = rospy.Subscriber('/nao_dcm/')
 		self.r = rospy.Rate(100)
 
 		# message objects and default message intervals
@@ -178,3 +180,19 @@ class Mover:
 
 		except KeyboardInterrupt:
 			sys.exit()
+		
+		
+	def target(self):
+		cwl = 2.0857
+		cwr = -2.0857
+		chu = -0.6720
+		chd = 0.5149
+		f1 = [0,0]
+		f2 = [-1,-0.2]
+		f3 = [1, -0.2]
+		
+		
+		
+	def look(self, target):
+		
+		
