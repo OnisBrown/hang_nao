@@ -9,7 +9,8 @@ import numpy
 import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-
+from control_msgs.msg import JointTrajectoryControllerState
+from random import randint
 
 class Mover:
 	def __init__(self):
@@ -21,7 +22,7 @@ class Mover:
 		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=100)
 		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=100)
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
-		self.cs = rospy.Subscriber('/nao_dcm/')
+		self.cs = rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.target)
 		self.r = rospy.Rate(100)
 
 		# message objects and default message intervals
@@ -180,19 +181,23 @@ class Mover:
 
 		except KeyboardInterrupt:
 			sys.exit()
-		
-		
-	def target(self):
-		cwl = 2.0857
-		cwr = -2.0857
-		chu = -0.6720
-		chd = 0.5149
-		f1 = [0,0]
-		f2 = [-1,-0.2]
-		f3 = [1, -0.2]
-		
-		
-		
-	def look(self, target):
-		
-		
+
+	def target(self, state):
+		try:
+			self.jt.joint_names = self.headJ
+			cwl = 2.0857  #leftmost radian robot can turn it's head
+			cwr = -2.0857  #rightmost radian robot can turn it's head
+			chu = -0.6720  #uppermost radian robot can tilt it's head
+			chd = 0.5149  #lowermost radian robot can tilt it's head
+			vpw = 1.0630/2   #vertical field of view for the robot halved
+			vph = 0.8308/2   #horizontal field of view for the robot halved
+			f = [[0, 0], [-0.2, -1], [-0.2, 1]]
+			point = f[randint(0, 2)]
+			loch = state.desired.positions[0]
+			locv = state.desired.positions[1]
+
+			self.move(point, self.ph)
+			rospy.sleep(3)
+
+		except KeyboardInterrupt:
+			sys.exit()
