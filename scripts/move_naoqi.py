@@ -8,13 +8,19 @@ import almath
 import numpy
 import rospy
 import roslib
+import cv2, cv_bridge
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
+from sensor_msgs.msg import Image
+
 from random import randint
 
 class Mover:
 	def __init__(self):
 		rospy.init_node('mover', anonymous=True)
+
+		self.bridge = cv_bridge.CvBridge()
+		cv2.namedWindow("window", 1)
 
 		# publishers for each robot body part used
 		self.ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=100)
@@ -22,7 +28,10 @@ class Mover:
 		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=100)
 		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=100)
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
-		self.cs = rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.target)
+
+		# subscribers for robot sensors
+		self.hjs = rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
+		self.hv = rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.r = rospy.Rate(100)
 
 		# message objects and default message intervals
@@ -182,20 +191,27 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
+	def head_pos(self, pos):
+		self.target(pos)
+
+	def head_view(self, img):
+		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
+		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+		cv2.imshow("window", image)
+		cv2.waitKey(3)
+
 	def target(self, state):
 		try:
+			#cwl = 2.0857  #leftmost radian robot can turn it's head
+			#cwr = -2.0857  #rightmost radian robot can turn it's head
+			#chu = -0.6720  #uppermost radian robot can tilt it's head
+			#chd = 0.5149  #lowermost radian robot can tilt it's head
+			#vpw = 1.0630/2   #vertical field of view for the robot halved
+			#vph = 0.8308/2   #horizontal field of view for the robot halved
 			self.jt.joint_names = self.headJ
-			cwl = 2.0857  #leftmost radian robot can turn it's head
-			cwr = -2.0857  #rightmost radian robot can turn it's head
-			chu = -0.6720  #uppermost radian robot can tilt it's head
-			chd = 0.5149  #lowermost radian robot can tilt it's head
-			vpw = 1.0630/2   #vertical field of view for the robot halved
-			vph = 0.8308/2   #horizontal field of view for the robot halved
 			f = [[0, 0], [-0.2, -1], [-0.2, 1]]
 			point = f[randint(0, 2)]
 			loch = state.desired.positions[0]
-			locv = state.desired.positions[1]
-
 			self.move(point, self.ph)
 			rospy.sleep(3)
 

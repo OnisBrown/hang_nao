@@ -20,7 +20,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.sm = am.split()
 		self.sh = ah.split()
 
-	def game(self):
+	def game_start(self):
 		name = raw_input("What is your name? ")
 		hard = raw_input("play on hard mode? (y/n) ")
 

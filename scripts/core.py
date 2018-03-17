@@ -50,7 +50,7 @@ while not rospy.is_shutdown():
 			print choice
 			mover(choice)
 		else:
-			NG.game()
+			NG.game_start()
 
 	except KeyboardInterrupt:
 		sys.exit()
