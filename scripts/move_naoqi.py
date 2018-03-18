@@ -30,8 +30,8 @@ class Mover:
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
 
 		# subscribers for robot sensors
-		self.hjs = rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
-		self.hv = rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
+		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
+		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.r = rospy.Rate(100)
 
 		# message objects and default message intervals
@@ -45,6 +45,8 @@ class Mover:
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
+
+		self.current = [0, 0]
 		print "Nao mover node ready"
 
 	# publisher method that accepts a publisher object and uses it
@@ -113,7 +115,7 @@ class Mover:
 				sharp = 0.2
 
 			i = self.interval
-			goal = [0.0, 0.0]
+			goal = self.current
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal[0] += sharp
@@ -135,7 +137,7 @@ class Mover:
 			if mood >= 0.5:
 				self.interval = 0.2
 				goal = [0.0, 0.5]
-				sharp = 0.5
+				sharp = 0.3
 
 			else:
 				self.interval = 0.4
@@ -191,8 +193,8 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
-	def head_pos(self, pos):
-		self.target(pos)
+	def head_pos(self, state):
+		self.current = state
 
 	def head_view(self, img):
 		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
@@ -200,7 +202,7 @@ class Mover:
 		cv2.imshow("window", image)
 		cv2.waitKey(3)
 
-	def target(self, state):
+	def target(self, pos):
 		try:
 			#cwl = 2.0857  #leftmost radian robot can turn it's head
 			#cwr = -2.0857  #rightmost radian robot can turn it's head
@@ -208,11 +210,9 @@ class Mover:
 			#chd = 0.5149  #lowermost radian robot can tilt it's head
 			#vpw = 1.0630/2   #vertical field of view for the robot halved
 			#vph = 0.8308/2   #horizontal field of view for the robot halved
+
 			self.jt.joint_names = self.headJ
-			f = [[0, 0], [-0.2, -1], [-0.2, 1]]
-			point = f[randint(0, 2)]
-			loch = state.desired.positions[0]
-			self.move(point, self.ph)
+			self.move(pos, self.ph)
 			rospy.sleep(3)
 
 		except KeyboardInterrupt:

@@ -3,12 +3,15 @@
 import sys
 import time
 from random import randint
+from hang-nao.msg import GameState, PlayerState
+import rospy
 
 class Player:
 	def __init__(self):
-		self.score = 0
-		self.names = []
+		self.score = 0.7
+		self.id = []
 		self.faces = []
+		self.pos = []
 		
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
@@ -19,9 +22,19 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		ah = lh.read()
 		self.sm = am.split()
 		self.sh = ah.split()
+		self.pl = list()
+
+		rospy.init_node('/game', anonymous=True)
+		gp = rospy.Publisher('/game', GameState, queue_size=100)
+		pp = rospy.Publisher('/game', PlayerState, queue_size=100)
 
 	def game_start(self):
-		name = raw_input("What is your name? ")
+		pCount = int(raw_input("How many players are there? "))
+
+		for i in range(pCount):
+			self.pl.append(Player())
+			self.pl[i].id = i
+
 		hard = raw_input("play on hard mode? (y/n) ")
 
 		wm = self.sm[randint(0, 212)]
@@ -32,9 +45,9 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		else:
 			word = wm
 
-		print "Hello, " + name, "Time to play hangman!"
+		print "Time to play hangman!"
 		print ""
-		time.sleep(1)
+		time.sleep(0.5)
 		print "Start guessing..."
 		time.sleep(0.5)
 
@@ -43,6 +56,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 		#determine the number of turns
 		turns = 12
+
+		cp = 0
 
 		try:
 			#check if the turns are more than zero
@@ -66,6 +81,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "\n next round"
 
 				# ask the user go guess a character
+				print "Player " + self.pl[i].id
 				guess = raw_input("guess a character: ")
 
 				if guess == "!": # if the user inputs an exclamation mark exit the game
@@ -75,7 +91,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 				# if the guess is not found in the secret word
 				if guess not in word:
-					turns -= 1
+					turns -= len(guess)
+
 
 				# print wrong
 					print "\n Wrong"
@@ -86,6 +103,10 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				# if the turns are equal to zero
 					if turns == 0:
 						print "You Loose"
+				if cp == len(pl) - 1:
+					cp = 0
+				else:
+					cp += cp
 
 		except KeyboardInterrupt:
 			sys.exit()

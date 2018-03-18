@@ -7,8 +7,8 @@ import almath
 import rospy
 import roslib
 from move_naoqi import Mover
-from game import *
-
+import game
+from hang-nao.msg import GameState, PlayerState
 
 # message on program exit
 def my_hook():
@@ -18,39 +18,75 @@ def my_hook():
 rospy.on_shutdown(my_hook)
 
 NM = Mover()
-NG = HangMan()
-mood = 0.3
+NG = game.HangMan()
 
-
-def mover(mc):
-	if mc == 0:
-		NM.body_reset()
-		return
-	if mc == 1:
-		NM.head_shake(mood)
-		return
-	if mc == 2:
-		NM.head_nod(mood)
-		return
-	if mc == 3:
-		NM.cheer()
-		NM.cheer()
-		return
+def yes(score):
+	if score < 0.8:
+		NM.head_nod(score)
 	else:
-		print "Invalid movement"
-		return
+		NM.head_nod()
+		NM.cheer()
+		NM.body_reset()
+	return
 
+def no(score):
+	NM.head_shake(score)
+	return
 
-while not rospy.is_shutdown():
-	try:
-		c = raw_input('would you like to move?')
-		if c == 'y':
-			mood = float(raw_input("mood: "))
-			choice = int(raw_input("select movement "))
-			print choice
-			mover(choice)
+def victory():
+	NM.cheer()
+	NM.cheer()
+
+def defeat(score):
+	NM.head_shake(score)
+	NM.head_shake(score)
+
+def answer(response):
+	playerID = response.pt
+	score = NG.pl[playerID].score
+	if response.turn != 0:
+		if bool(response.verify):
+			yes(score)
+		if not bool(response.verify):
+			no(score)
+	else:
+		if bool(response.win):
+			victory()
 		else:
-			NG.game_start()
+			defeat(score)
 
-	except KeyboardInterrupt:
-		sys.exit()
+#def mover(mc):
+#	if mc == 0:
+#		NM.body_reset()
+#		return
+#	if mc == 1:
+#		NM.head_shake(mood)
+#		return
+#	if mc == 2:
+#		NM.head_nod(mood)
+#		return
+#	if mc == 3:
+#		NM.cheer()
+#		NM.cheer()
+#		return
+#	else:
+#		print "Invalid movement"
+#		return
+
+rospy.init_node('core', anonymous=True)
+rospy.Subscriber('/game/GameState', GameState, answer)
+#rospy.Subscriber('/game/PlayerState', GameState, update)
+
+#while not rospy.is_shutdown():
+#	try:
+#		c = raw_input('would you like to move?')
+#		if c == 'y':
+#			mood = float(raw_input("mood: "))
+#			choice = int(raw_input("select movement "))
+#			print choice
+#			mover(choice)
+#		else:
+#			NG.game_start()
+
+#	except KeyboardInterrupt:
+#		sys.exit()
