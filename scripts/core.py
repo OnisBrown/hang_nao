@@ -8,7 +8,7 @@ import rospy
 import roslib
 from move_naoqi import Mover
 import game
-from hang-nao.msg import GameState, PlayerState
+from hang_nao.msg import GameState, PlayerState
 
 # message on program exit
 def my_hook():
@@ -46,15 +46,17 @@ def answer(response):
 	playerID = response.pt
 	score = NG.pl[playerID].score
 	if response.turn != 0:
-		if bool(response.verify):
-			yes(score)
-		if not bool(response.verify):
-			no(score)
-	else:
 		if bool(response.win):
 			victory()
 		else:
-			defeat(score)
+			if response.verify == 1:
+				yes(score)
+			if response.verify == 0:
+				no(score)
+			if response.verify == 2:
+				NM.body_reset()
+	else:
+		defeat(score)
 
 #def mover(mc):
 #	if mc == 0:
@@ -74,7 +76,6 @@ def answer(response):
 #		print "Invalid movement"
 #		return
 
-rospy.init_node('core', anonymous=True)
 rospy.Subscriber('/game/GameState', GameState, answer)
 NG.game_start()
 #rospy.Subscriber('/game/PlayerState', GameState, update)

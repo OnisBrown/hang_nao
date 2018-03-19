@@ -17,7 +17,7 @@ from random import randint
 
 class Mover:
 	def __init__(self):
-		rospy.init_node('mover', anonymous=True)
+		rospy.init_node('hang_nao', anonymous=True)
 
 		self.bridge = cv_bridge.CvBridge()
 		cv2.namedWindow("window", 1)
@@ -46,7 +46,8 @@ class Mover:
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
 
-		self.current = [0, 0]
+		self.current = [0.0, 0.0]
+		self.body_reset()
 		print "Nao mover node ready"
 
 	# publisher method that accepts a publisher object and uses it
@@ -194,7 +195,7 @@ class Mover:
 			sys.exit()
 
 	def head_pos(self, state):
-		self.current = state
+		self.current = list(state.desired.positions)
 
 	def head_view(self, img):
 		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
