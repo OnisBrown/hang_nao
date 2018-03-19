@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/hang-nao.iml" afterPath="$PROJECT_DIR$/.idea/hang-nao.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change beforePath="$PROJECT_DIR$/msg/GameState.msg" afterPath="$PROJECT_DIR$/msg/GameState.msg" />
-      <change beforePath="$PROJECT_DIR$/msg/Player.msg" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/msg/headM.msg" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/core.py" afterPath="$PROJECT_DIR$/scripts/core.py" />
-      <change beforePath="$PROJECT_DIR$/scripts/game.py" afterPath="$PROJECT_DIR$/scripts/game.py" />
-      <change beforePath="$PROJECT_DIR$/scripts/move_naoqi.py" afterPath="$PROJECT_DIR$/scripts/move_naoqi.py" />
-      <change beforePath="$PROJECT_DIR$/srv/headS.srv" afterPath="" />
-    </list>
+    <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +11,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="move_naoqi.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="move_naoqi.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-162">
@@ -48,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="game.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="546">
-              <caret line="91" column="64" lean-forward="false" selection-start-line="91" selection-start-column="64" selection-end-line="91" selection-end-column="64" />
+            <state relative-caret-position="348">
+              <caret line="80" column="44" lean-forward="true" selection-start-line="80" selection-start-column="44" selection-end-line="80" selection-end-column="44" />
               <folding>
                 <element signature="e#26#36#0" expanded="true" />
               </folding>
@@ -375,13 +363,12 @@
     <entry file="file://$PROJECT_DIR$/scripts/head_naoqi" />
     <entry file="file://$PROJECT_DIR$/scripts/head_naoqi" />
     <entry file="file://$PROJECT_DIR$/scripts/move_naoqi" />
-    <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
+    <entry file="file://$PROJECT_DIR$/scripts/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-162">
-          <caret line="51" column="0" lean-forward="true" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+        <state relative-caret-position="348">
+          <caret line="80" column="44" lean-forward="true" selection-start-line="80" selection-start-column="44" selection-end-line="80" selection-end-column="44" />
           <folding>
-            <element signature="e#27#37#0" expanded="true" />
-            <element signature="e#5419#5475#0" expanded="false" />
+            <element signature="e#26#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -396,12 +383,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/game.py">
+    <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="546">
-          <caret line="91" column="64" lean-forward="false" selection-start-line="91" selection-start-column="64" selection-end-line="91" selection-end-column="64" />
+        <state relative-caret-position="-162">
+          <caret line="51" column="0" lean-forward="true" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
           <folding>
-            <element signature="e#26#36#0" expanded="true" />
+            <element signature="e#27#37#0" expanded="true" />
+            <element signature="e#5419#5475#0" expanded="false" />
           </folding>
         </state>
       </provider>
