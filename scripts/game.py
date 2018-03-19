@@ -3,7 +3,7 @@
 import sys
 import time
 from random import randint
-from hang_nao.msg import GameState, PlayerState
+from hang_nao.msg import GameState, PlayerState, NewTurn
 import rospy
 import os
 
@@ -24,11 +24,13 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.sm = am.split()
 		self.sh = ah.split()
 		self.pl = list()
+		self.cp = 0
 
 		#message publishers and message objects
 		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=100)
-		#pp = rospy.Publisher('/game', PlayerState, queue_size=100)
+		self.tp = rospy.Publisher('/game/NewTurn', NewTurn, queue_size=100)
 		self.gm = GameState()
+		self.tm = NewTurn()
 
 	def game_start(self):
 		self.pCount = int(raw_input("How many players are there? "))
@@ -53,13 +55,12 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		print "Start guessing..."
 		time.sleep(0.5)
 
-		#creates a variable with an empty value
+		#creates variables to track guesses
 		guesses = ''
 		misses = ''
+		correct = ''
 		#determine the number of turns
 		turns = 12
-
-		cp = 0
 
 		self.gm.verify = 2
 		self.gm.turn = turns
@@ -69,6 +70,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		try:
 			#check if the turns are more than zero
 			while turns > 0:
+				self.tp.publish(self.tm)
 				self.gm.verify = 2
 				self.gm.turn = turns
 				self.gp.publish(self.gm)
@@ -96,9 +98,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "\n__________________________________________\n"
 
 				# ask the user go guess a character
-				self.gm.pt = cp
 				self.gp.publish(self.gm)
-				print "Player " + str(self.pl[cp].id) + ' your turn\n'
+				print "Player " + str(self.pl[self.cp].id) + ' your turn\n'
 				print "You have ", + turns, ' guesses remaining'
 				print "\nIncorrect guesses: " + misses
 				rospy.sleep(1)
@@ -114,22 +115,28 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					if char not in word:
 						if char not in misses:
 							turns -= 1
-							self.pl[cp].score -= 0.1
+							self.pl[self.cp].score -= 0.1
 							self.gm.verify = 0
 							misses += ' ' + char
-
 							# print wrong
 							print char + " is wrong"
 
 						else:
-							self.pl[cp].score -= 0.05
+							self.pl[self.cp].score -= 0.05
 							self.gm.verify = 0
-							print "You all already guessed " + char
-
+							print "You already guessed " + char
 
 					else:
-						self.gm.verify = 1
-						self.pl[cp].score += 0.1
+						if char in correct:
+							print "You already guessed " + char
+							self.pl[self.cp].score -= 0.05
+							self.gm.verify = 2
+						else:
+							self.gm.verify = 1
+							self.pl[self.cp].score += 0.1
+
+				if len(guess) > 1:
+					self.gm.verify = 2
 
 				# how many turns are left
 				print "\nYou have", + turns, 'more guesses'
@@ -142,17 +149,24 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				self.gm.turn = turns
 				self.gp.publish(self.gm)
 
-				if cp >= self.pCount - 1:
-					cp = 0
-				else:
-					cp += 1
-
 				for char in word:
 					if char in guesses:
 						print char,
+						if char not in correct:
+							correct += char
 
 					else:
 						print "_",
+
+				rospy.sleep(1)
+
+				if self.cp >= self.pCount - 1:
+					self.cp = 0
+				else:
+					self.cp += 1
+
+
+
 
 				raw_input('\npress enter...')
 

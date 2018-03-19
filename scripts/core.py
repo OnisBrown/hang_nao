@@ -8,7 +8,7 @@ import rospy
 import roslib
 from move_naoqi import Mover
 import game
-from hang_nao.msg import GameState, PlayerState
+from hang_nao.msg import GameState, PlayerState, NewTurn
 
 # message on program exit
 def my_hook():
@@ -22,17 +22,15 @@ NG = game.HangMan()
 
 def yes(score):
 	if score < 0.8:
-		NM.head_nod(score)
+		NM.head_nod()
 	else:
-		NM.head_nod(score)
+		NM.head_nod()
 		NM.cheer()
 		NM.body_reset()
-	print score
 	return
 
 def no(score):
-	NM.head_shake(score)
-	print score
+	NM.head_shake()
 	return
 
 def victory():
@@ -40,30 +38,35 @@ def victory():
 	NM.cheer()
 
 def defeat(score):
-	NM.head_shake(score)
-	NM.head_shake(score)
+	NM.head_shake()
+	NM.head_shake()
 
 def look():
 	NM.target()
 
 def answer(response):
-	playerID = response.pt
-	score = NG.pl[playerID].score
+	playerID = NG.cp
+	NM.score = NG.pl[playerID].score
 	NM.pp = NG.pl[playerID].pos
 	if response.turn > 0:
 		if bool(response.win):
 			victory()
 		else:
 			if response.verify == 1:
-				yes(score)
+				yes()
 				#look(pp)
 			if response.verify == 0:
-				no(score)
+				no()
 				#look(pp)
 			if response.verify == 2:
 				look()
 	else:
-		defeat(score)
+		defeat()
+
+def update_turn(newturn):
+	NM.change = True
 
 rospy.Subscriber('/game/GameState', GameState, answer)
 NG.game_start()
+rospy.Subscriber('/game/NewTurn', NewTurn, update_turn)
+

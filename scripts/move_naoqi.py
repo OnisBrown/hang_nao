@@ -13,7 +13,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
 from sensor_msgs.msg import Image
 
-from random import randint
+from random import uniform, randint
 
 class Mover:
 	def __init__(self):
@@ -30,7 +30,7 @@ class Mover:
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
 
 		# subscribers for robot sensors
-		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
+		#rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.r = rospy.Rate(100)
 
@@ -46,7 +46,9 @@ class Mover:
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
 
+		self.change = False
 		self.current = [0, 0]
+		self.score = 0.0
 		self.pp = [0, 0]
 		self.body_reset()
 		print "Nao mover node ready"
@@ -66,14 +68,6 @@ class Mover:
 
 		except KeyboardInterrupt:
 			sys.exit()
-
-	def cont_move(self, dir, p):
-		try:
-			self.move_setup()
-			self.jtp.velocities = dir
-			self.jtp.time_from_start = rospy.Duration(self.interval)
-			self.jt.points.append(self.jtp)
-			self.pub(p)
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -115,13 +109,11 @@ class Mover:
 			sys.exit()
 
 	# method for making the robot nodding it's head
-	def head_nod(self, mood):
+	def head_nod(self):
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
-			goal = self.current
-
-			if mood >= 0.5:
+			if self.score >= 0.5:
 				self.interval = 0.3
 				sharp = 0.6
 
@@ -130,51 +122,53 @@ class Mover:
 				sharp = 0.2
 
 			i = self.interval
+			px = self.pp[1]
+			py = self.pp[0]
+			goal = [py + sharp, px]
 			self.move(goal, p)
 			rospy.sleep(i)
-			goal[0] += sharp
+			goal = [py, px]
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal[0] -= sharp
-			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(i*3)
 			self.target()
 
 		except KeyboardInterrupt:
 			sys.exit()
 
 	# method for making the robot shake it's head
-	def head_shake(self, mood):
+	def head_shake(self):
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
-			goal = self.current
+			px = self.pp[1]
+			py = self.pp[0]
 
-			if mood <= 0.5:
+			if self.score >= 0.5:
 				self.interval = 0.2
+				incline = 0
 				sharp = 0.3
 
 			else:
 				self.interval = 0.4
-				goal[0] = 0.4
+				incline = 0.4
 				sharp = 0.6
 
-			print goal
 			i = self.interval
+			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
-			print goal
-			goal[1] -= sharp
+			goal = [py + incline, px - sharp]
+			self.move(goal, p)#
+			rospy.sleep(i)
+			goal = [py + incline, px]
 			self.move(goal, p)
 			rospy.sleep(i)
-			print goal
-			goal[1] += sharp*2
+			goal = [py + incline, px + sharp]
 			self.move(goal, p)
 			rospy.sleep(i)
-			print goal
-			goal[1] -= sharp
+			goal = [py, px]
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(i*3)
 			self.target()
 
 		except KeyboardInterrupt:
@@ -213,8 +207,8 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
-	def head_pos(self, state):
-		self.current = list(state.desired.positions)
+	#def head_pos(self, state):
+	#	self.current = list(state.desired.positions)
 
 	def head_view(self, img):
 		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
@@ -230,11 +224,30 @@ class Mover:
 			#chd = 0.5149  #lowermost radian robot can tilt it's head
 			#vpw = 1.0630/2   #vertical field of view for the robot halved
 			#vph = 0.8308/2   #horizontal field of view for the robot halved
+			self.change = False
+			lt = uniform(0.5, 1.5) + self.score
+			bt = uniform(1.5, 2.1) - self.score
+			px = uniform(-1.8, 1.8)
+			py = uniform(-0.5, 0.4)
 
-			pos = self.pp
-			self.jt.joint_names = self.headJ
-			self.move(pos, self.ph)
-			rospy.sleep(1)
+			if self.change:
+				self.jt.joint_names = self.headJ
+
+				pos = self.pp
+				self.move(pos, self.ph)
+
+				rospy.sleep(lt)
+
+
+				pos = [py, px]
+				self.move(pos, self.ph)
+				rospy.sleep(bt)
+
+				pos = self.pp
+				self.move(pos, self.ph)
+				rospy.sleep(1)
+				self.change = True
+
 
 		except KeyboardInterrupt:
 			sys.exit()

@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    PlayerState.msg
    GameState.msg
+   NewTurn.msg
  )
 
 ## Generate services in the 'srv' folder
