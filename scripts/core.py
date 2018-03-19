@@ -18,14 +18,13 @@ def my_hook():
 rospy.on_shutdown(my_hook)
 
 NM = Mover()
-NM.body_reset()
 NG = game.HangMan()
 
 def yes(score):
 	if score < 0.8:
 		NM.head_nod(score)
 	else:
-		NM.head_nod()
+		NM.head_nod(score)
 		NM.cheer()
 		NM.body_reset()
 	return
@@ -42,54 +41,27 @@ def defeat(score):
 	NM.head_shake(score)
 	NM.head_shake(score)
 
+def look():
+	NM.target()
+
 def answer(response):
 	playerID = response.pt
 	score = NG.pl[playerID].score
-	if response.turn != 0:
+	NM.pp = NG.pl[playerID].pos
+	if response.turn > 0:
 		if bool(response.win):
 			victory()
 		else:
 			if response.verify == 1:
 				yes(score)
+				#look(pp)
 			if response.verify == 0:
 				no(score)
+				#look(pp)
 			if response.verify == 2:
-				NM.body_reset()
+				look()
 	else:
 		defeat(score)
 
-#def mover(mc):
-#	if mc == 0:
-#		NM.body_reset()
-#		return
-#	if mc == 1:
-#		NM.head_shake(mood)
-#		return
-#	if mc == 2:
-#		NM.head_nod(mood)
-#		return
-#	if mc == 3:
-#		NM.cheer()
-#		NM.cheer()
-#		return
-#	else:
-#		print "Invalid movement"
-#		return
-
 rospy.Subscriber('/game/GameState', GameState, answer)
 NG.game_start()
-#rospy.Subscriber('/game/PlayerState', GameState, update)
-
-#while not rospy.is_shutdown():
-#	try:
-#		c = raw_input('would you like to move?')
-#		if c == 'y':
-#			mood = float(raw_input("mood: "))
-#			choice = int(raw_input("select movement "))
-#			print choice
-#			mover(choice)
-#		else:
-#			NG.game_start()
-
-#	except KeyboardInterrupt:
-#		sys.exit()

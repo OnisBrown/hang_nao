@@ -5,6 +5,7 @@ import time
 from random import randint
 from hang_nao.msg import GameState, PlayerState
 import rospy
+import os
 
 class Player:
 	def __init__(self):
@@ -30,11 +31,12 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.gm = GameState()
 
 	def game_start(self):
-		pCount = int(raw_input("How many players are there? "))
+		self.pCount = int(raw_input("How many players are there? "))
 
-		for i in range(pCount):
+		for i in range(self.pCount):
 			self.pl.append(Player())
 			self.pl[i].id = i + 1
+			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
 		hard = raw_input("play on hard mode? (y/n) ")
 
@@ -59,10 +61,19 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 		cp = 0
 
+		self.gm.verify = 2
+		self.gm.turn = turns
+		self.gm.win = 0
+		self.gp.publish(self.gm)
+
 		try:
 			#check if the turns are more than zero
 			while turns > 0:
-				print "\n" * 100
+				self.gm.verify = 2
+				self.gm.turn = turns
+				self.gp.publish(self.gm)
+
+				os.system('clear')
 				# make a counter that starts with zero
 				failed = 0
 				# for every character in
@@ -85,12 +96,12 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "\n__________________________________________\n"
 
 				# ask the user go guess a character
-				self.gm.verify = 2
 				self.gm.pt = cp
 				self.gp.publish(self.gm)
-				print "Player " + str(self.pl[cp].id) + ' your turn'
-				print " You have ", + turns, ' guesses remaining'
+				print "Player " + str(self.pl[cp].id) + ' your turn\n'
+				print "You have ", + turns, ' guesses remaining'
 				print "\nIncorrect guesses: " + misses
+				rospy.sleep(1)
 				guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 				print "\n"
 				if guess == "!": # if the user inputs an exclamation mark exit the game
@@ -101,14 +112,21 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				# if the guess is not found in the secret word
 				for char in guess:
 					if char not in word:
-						turns -= 1
-						self.pl[cp].score -= 0.1
-						self.gm.verify = 0
 						if char not in misses:
-								misses += ' ' + char
+							turns -= 1
+							self.pl[cp].score -= 0.1
+							self.gm.verify = 0
+							misses += ' ' + char
 
-					# print wrong
-						print char + " is wrong"
+							# print wrong
+							print char + " is wrong"
+
+						else:
+							self.pl[cp].score -= 0.05
+							self.gm.verify = 0
+							print "You all already guessed " + char
+
+
 					else:
 						self.gm.verify = 1
 						self.pl[cp].score += 0.1
@@ -116,22 +134,18 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				# how many turns are left
 				print "\nYou have", + turns, 'more guesses'
 
-
-
-
-
 				# if the turns are equal to zero
-				if turns == 0:
+				if turns < 0:
 					print "\nYou Loose"
 					self.gm.win = 0
 
 				self.gm.turn = turns
 				self.gp.publish(self.gm)
 
-				if cp == pCount - 1:
+				if cp >= self.pCount - 1:
 					cp = 0
 				else:
-					cp += cp
+					cp += 1
 
 				for char in word:
 					if char in guesses:

@@ -46,7 +46,8 @@ class Mover:
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
 
-		self.current = [0.0, 0.0]
+		self.current = [0, 0]
+		self.pp = [0, 0]
 		self.body_reset()
 		print "Nao mover node ready"
 
@@ -97,6 +98,7 @@ class Mover:
 			self.jt.joint_names = self.RArmJ
 			goal = [0.3, 1.5, 1.5, -0.2, 0.0]
 			self.move(goal, self.par)
+			self.target()
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -106,6 +108,7 @@ class Mover:
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
+			goal = self.current
 
 			if mood >= 0.5:
 				self.interval = 0.3
@@ -116,7 +119,6 @@ class Mover:
 				sharp = 0.2
 
 			i = self.interval
-			goal = self.current
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal[0] += sharp
@@ -124,7 +126,8 @@ class Mover:
 			rospy.sleep(i)
 			goal[0] -= sharp
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(i*3)
+			self.target()
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -134,16 +137,16 @@ class Mover:
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
+			goal = self.current
 
 			if mood >= 0.5:
 				self.interval = 0.2
-				goal = [0.0, 0.5]
 				sharp = 0.3
 
 			else:
 				self.interval = 0.4
-				goal = [0.4, 1.0]
-				sharp = 1
+				goal[0] = 0.3
+				sharp = 0.6
 
 			i = self.interval
 			self.move(goal, p)
@@ -151,12 +154,13 @@ class Mover:
 			goal[1] -= sharp
 			self.move(goal, p)
 			rospy.sleep(i)
+			goal[1] += sharp*2
+			self.move(goal, p)
+			rospy.sleep(i)
 			goal[1] -= sharp
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [0.0, 0.0]
-			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(i * 3)
+			self.target()
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -203,7 +207,7 @@ class Mover:
 		cv2.imshow("window", image)
 		cv2.waitKey(3)
 
-	def target(self, pos):
+	def target(self):
 		try:
 			#cwl = 2.0857  #leftmost radian robot can turn it's head
 			#cwr = -2.0857  #rightmost radian robot can turn it's head
@@ -212,9 +216,10 @@ class Mover:
 			#vpw = 1.0630/2   #vertical field of view for the robot halved
 			#vph = 0.8308/2   #horizontal field of view for the robot halved
 
+			pos = self.pp
 			self.jt.joint_names = self.headJ
 			self.move(pos, self.ph)
-			rospy.sleep(3)
+			rospy.sleep(1)
 
 		except KeyboardInterrupt:
 			sys.exit()
