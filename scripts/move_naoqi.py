@@ -67,6 +67,17 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
+	def cont_move(self, dir, p):
+		try:
+			self.move_setup()
+			self.jtp.velocities = dir
+			self.jtp.time_from_start = rospy.Duration(self.interval)
+			self.jt.points.append(self.jtp)
+			self.pub(p)
+
+		except KeyboardInterrupt:
+			sys.exit()
+
 	# method for setting up move messages by setting all movement parameters to null
 	def move_setup(self):
 		try:
@@ -126,7 +137,7 @@ class Mover:
 			rospy.sleep(i)
 			goal[0] -= sharp
 			self.move(goal, p)
-			rospy.sleep(i*3)
+			rospy.sleep(i)
 			self.target()
 
 		except KeyboardInterrupt:
@@ -139,27 +150,31 @@ class Mover:
 			p = self.ph
 			goal = self.current
 
-			if mood >= 0.5:
+			if mood <= 0.5:
 				self.interval = 0.2
 				sharp = 0.3
 
 			else:
 				self.interval = 0.4
-				goal[0] = 0.3
+				goal[0] = 0.4
 				sharp = 0.6
 
+			print goal
 			i = self.interval
 			self.move(goal, p)
 			rospy.sleep(i)
+			print goal
 			goal[1] -= sharp
 			self.move(goal, p)
 			rospy.sleep(i)
+			print goal
 			goal[1] += sharp*2
 			self.move(goal, p)
 			rospy.sleep(i)
+			print goal
 			goal[1] -= sharp
 			self.move(goal, p)
-			rospy.sleep(i * 3)
+			rospy.sleep(i)
 			self.target()
 
 		except KeyboardInterrupt:

@@ -27,10 +27,12 @@ def yes(score):
 		NM.head_nod(score)
 		NM.cheer()
 		NM.body_reset()
+	print score
 	return
 
 def no(score):
 	NM.head_shake(score)
+	print score
 	return
 
 def victory():
