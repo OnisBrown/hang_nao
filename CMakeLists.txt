@@ -51,6 +51,8 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    headM.msg
+   Player.msg
+   GameState.msg
  )
 
 ## Generate services in the 'srv' folder

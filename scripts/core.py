@@ -18,6 +18,7 @@ def my_hook():
 rospy.on_shutdown(my_hook)
 
 NM = Mover()
+NM.body_reset()
 NG = game.HangMan()
 
 def yes(score):
@@ -75,6 +76,7 @@ def answer(response):
 
 rospy.init_node('core', anonymous=True)
 rospy.Subscriber('/game/GameState', GameState, answer)
+NG.game_start()
 #rospy.Subscriber('/game/PlayerState', GameState, update)
 
 #while not rospy.is_shutdown():
