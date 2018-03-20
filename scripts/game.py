@@ -27,8 +27,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.cp = 0
 
 		#message publishers and message objects
-		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=100)
-		self.tp = rospy.Publisher('/game/NewTurn', NewTurn, queue_size=100)
+		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=1)
+		self.tp = rospy.Publisher('/game/NewTurn', NewTurn, queue_size=1)
 		self.gm = GameState()
 		self.tm = NewTurn()
 
@@ -98,7 +98,6 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "\n__________________________________________\n"
 
 				# ask the user go guess a character
-				self.gp.publish(self.gm)
 				print "Player " + str(self.pl[self.cp].id) + ' your turn\n'
 				print "You have ", + turns, ' guesses remaining'
 				print "\nIncorrect guesses: " + misses
@@ -134,6 +133,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 						else:
 							self.gm.verify = 1
 							self.pl[self.cp].score += 0.1
+							print char + " is correct"
 
 				if len(guess) > 1:
 					self.gm.verify = 2
@@ -158,7 +158,9 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					else:
 						print "_",
 
-				rospy.sleep(1)
+				rospy.sleep(0.5)
+
+				raw_input('\npress enter...')
 
 				if self.cp >= self.pCount - 1:
 					self.cp = 0
@@ -168,7 +170,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 
 
-				raw_input('\npress enter...')
+
 
 		except KeyboardInterrupt:
 			sys.exit()

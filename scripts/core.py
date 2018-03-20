@@ -20,53 +20,67 @@ rospy.on_shutdown(my_hook)
 NM = Mover()
 NG = game.HangMan()
 
-def yes(score):
-	if score < 0.8:
+def look():
+	NM.target()
+
+
+def yes():
+	if NM.score < 0.8:
 		NM.head_nod()
+		look()
 	else:
 		NM.head_nod()
 		NM.cheer()
 		NM.body_reset()
+		look()
 	return
 
-def no(score):
+
+def no():
 	NM.head_shake()
+	look()
 	return
+
 
 def victory():
 	NM.cheer()
 	NM.cheer()
+	NM.body_reset()
 
-def defeat(score):
+def defeat():
 	NM.head_shake()
 	NM.head_shake()
 
-def look():
-	NM.target()
 
 def answer(response):
 	playerID = NG.cp
 	NM.score = NG.pl[playerID].score
 	NM.pp = NG.pl[playerID].pos
+	look()
 	if response.turn > 0:
 		if bool(response.win):
 			victory()
 		else:
 			if response.verify == 1:
+				NM.change = False
 				yes()
-				#look(pp)
 			if response.verify == 0:
+				NM.change = False
 				no()
-				#look(pp)
 			if response.verify == 2:
-				look()
+				NM.change = True
+				NM.idle()
 	else:
 		defeat()
 
+
 def update_turn(newturn):
-	NM.change = True
+	#NM.change = True
+	pass
 
 rospy.Subscriber('/game/GameState', GameState, answer)
+NM.body_reset()
 NG.game_start()
+
 rospy.Subscriber('/game/NewTurn', NewTurn, update_turn)
 

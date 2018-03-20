@@ -23,16 +23,16 @@ class Mover:
 		cv2.namedWindow("window", 1)
 
 		# publishers for each robot body part used
-		self.ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=100)
-		self.pal = rospy.Publisher('/nao_dcm/LeftArm_controller/command', JointTrajectory, queue_size=100)
-		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=100)
-		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=100)
-		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=100)
+		self.ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=1)
+		self.pal = rospy.Publisher('/nao_dcm/LeftArm_controller/command', JointTrajectory, queue_size=1)
+		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=1)
+		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=1)
+		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=1)
 
 		# subscribers for robot sensors
 		#rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
-		self.r = rospy.Rate(100)
+		self.r = rospy.Rate(10)
 
 		# message objects and default message intervals
 		self.jt = JointTrajectory()
@@ -46,7 +46,7 @@ class Mover:
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
 
-		self.change = False
+		self.change = True
 		self.current = [0, 0]
 		self.score = 0.0
 		self.pp = [0, 0]
@@ -103,7 +103,6 @@ class Mover:
 			self.jt.joint_names = self.RArmJ
 			goal = [0.3, 1.5, 1.5, -0.2, 0.0]
 			self.move(goal, self.par)
-			self.target()
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -129,8 +128,7 @@ class Mover:
 			rospy.sleep(i)
 			goal = [py, px]
 			self.move(goal, p)
-			rospy.sleep(i*3)
-			self.target()
+			rospy.sleep(i)
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -168,8 +166,7 @@ class Mover:
 			rospy.sleep(i)
 			goal = [py, px]
 			self.move(goal, p)
-			rospy.sleep(i*3)
-			self.target()
+			rospy.sleep(i)
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -216,6 +213,18 @@ class Mover:
 		cv2.imshow("window", image)
 		cv2.waitKey(3)
 
+	def idle(self):
+		lt = uniform(2.0, 3.0) + self.score # time before nao looks away
+		bt = uniform(1.5, 2.5) - self.score
+		px = uniform(-1.8, 1.8)
+		py = uniform(-0.5, 0.4)
+		rospy.sleep(lt)
+		pos = [py, px]
+		self.move(pos, self.ph)
+		rospy.sleep(bt)
+		pos = self.pp
+		self.move(pos, self.ph)
+
 	def target(self):
 		try:
 			#cwl = 2.0857  #leftmost radian robot can turn it's head
@@ -224,30 +233,10 @@ class Mover:
 			#chd = 0.5149  #lowermost radian robot can tilt it's head
 			#vpw = 1.0630/2   #vertical field of view for the robot halved
 			#vph = 0.8308/2   #horizontal field of view for the robot halved
-			self.change = False
-			lt = uniform(0.5, 1.5) + self.score
-			bt = uniform(1.5, 2.1) - self.score
-			px = uniform(-1.8, 1.8)
-			py = uniform(-0.5, 0.4)
 
-			if self.change:
-				self.jt.joint_names = self.headJ
-
-				pos = self.pp
-				self.move(pos, self.ph)
-
-				rospy.sleep(lt)
-
-
-				pos = [py, px]
-				self.move(pos, self.ph)
-				rospy.sleep(bt)
-
-				pos = self.pp
-				self.move(pos, self.ph)
-				rospy.sleep(1)
-				self.change = True
-
+			self.jt.joint_names = self.headJ
+			pos = self.pp
+			self.move(pos, self.ph)
 
 		except KeyboardInterrupt:
 			sys.exit()
