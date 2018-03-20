@@ -123,6 +123,9 @@ class Mover:
 			i = self.interval
 			px = self.pp[1]
 			py = self.pp[0]
+			goal = [py, px]
+			self.move(goal, p)
+			rospy.sleep(i)
 			goal = [py + sharp, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -163,6 +166,9 @@ class Mover:
 			rospy.sleep(i)
 			goal = [py + incline, px + sharp]
 			self.move(goal, p)
+			rospy.sleep(i)
+			goal = [py + incline, px - sharp]
+			self.move(goal, p)  #
 			rospy.sleep(i)
 			goal = [py, px]
 			self.move(goal, p)
@@ -209,7 +215,7 @@ class Mover:
 
 	def head_view(self, img):
 		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
-		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+		#hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 		cv2.imshow("window", image)
 		cv2.waitKey(3)
 
@@ -224,6 +230,7 @@ class Mover:
 		rospy.sleep(bt)
 		pos = self.pp
 		self.move(pos, self.ph)
+		rospy.sleep(0.5)
 
 	def target(self):
 		try:

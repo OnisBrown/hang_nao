@@ -18,6 +18,7 @@ def my_hook():
 rospy.on_shutdown(my_hook)
 
 NM = Mover()
+NM.body_reset()
 NG = game.HangMan()
 
 def look():
@@ -62,25 +63,21 @@ def answer(response):
 			victory()
 		else:
 			if response.verify == 1:
-				NM.change = False
 				yes()
 			if response.verify == 0:
-				NM.change = False
 				no()
 			if response.verify == 2:
-				NM.change = True
 				NM.idle()
 	else:
 		defeat()
 
 
 def update_turn(newturn):
-	#NM.change = True
-	pass
+	NM.change = True
 
 rospy.Subscriber('/game/GameState', GameState, answer)
-NM.body_reset()
+rospy.Subscriber('/game/NewTurn', NewTurn, update_turn)
 NG.game_start()
 
-rospy.Subscriber('/game/NewTurn', NewTurn, update_turn)
+
 

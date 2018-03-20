@@ -64,6 +64,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 		self.gm.verify = 2
 		self.gm.turn = turns
+		self.gm.verify = 2
 		self.gm.win = 0
 		self.gp.publish(self.gm)
 
@@ -71,8 +72,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 			#check if the turns are more than zero
 			while turns > 0:
 				self.tp.publish(self.tm)
-				self.gm.verify = 2
 				self.gm.turn = turns
+				self.gm.verify = 2
 				self.gp.publish(self.gm)
 
 				os.system('clear')
@@ -134,9 +135,6 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 							self.gm.verify = 1
 							self.pl[self.cp].score += 0.1
 							print char + " is correct"
-
-				if len(guess) > 1:
-					self.gm.verify = 2
 
 				# how many turns are left
 				print "\nYou have", + turns, 'more guesses'
