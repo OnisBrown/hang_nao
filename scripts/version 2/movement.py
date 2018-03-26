@@ -8,20 +8,13 @@ import almath
 import numpy
 import rospy
 import roslib
-import cv2, cv_bridge
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
-from sensor_msgs.msg import Image
-
 from random import uniform, randint
 
 class Mover:
 	def __init__(self):
 		rospy.init_node('hang_nao', anonymous=True)
-
-		self.bridge = cv_bridge.CvBridge()
-		cv2.namedWindow("window", 1)
-
 		# publishers for each robot body part used
 		self.ph = rospy.Publisher('/nao_dcm/Head_controller/command', JointTrajectory, queue_size=1)
 		self.pal = rospy.Publisher('/nao_dcm/LeftArm_controller/command', JointTrajectory, queue_size=1)
@@ -31,7 +24,6 @@ class Mover:
 
 		# subscribers for robot sensors
 		#rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
-		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.r = rospy.Rate(10)
 
 		# message objects and default message intervals
@@ -45,10 +37,6 @@ class Mover:
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
 		self.RHJ = ['RHand']
 		self.LHJ = ['LHand']
-
-		self.change = True
-		self.current = [0, 0]
-		self.score = 0.0
 		self.pp = [0, 0]
 		self.body_reset()
 		print "Nao mover node ready"
@@ -65,9 +53,6 @@ class Mover:
 			self.jtp.time_from_start = rospy.Duration(self.interval)
 			self.jt.points.append(self.jtp)
 			self.pub(p)
-
-		except KeyboardInterrupt:
-			sys.exit()
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -108,11 +93,11 @@ class Mover:
 			sys.exit()
 
 	# method for making the robot nodding it's head
-	def head_nod(self):
+	def head_nod(self, score):
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
-			if self.score >= 0.5:
+			if score >= 0.5:
 				self.interval = 0.3
 				sharp = 0.6
 
@@ -137,14 +122,14 @@ class Mover:
 			sys.exit()
 
 	# method for making the robot shake it's head
-	def head_shake(self):
+	def head_shake(self, score):
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
 
-			if self.score >= 0.5:
+			if score >= 0.5:
 				self.interval = 0.2
 				incline = 0
 				sharp = 0.3
@@ -159,7 +144,7 @@ class Mover:
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py + incline, px - sharp]
-			self.move(goal, p)#
+			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py + incline, px]
 			self.move(goal, p)
@@ -177,6 +162,7 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
+	#
 	def cheer(self):
 		try:
 			i = self.interval
@@ -210,27 +196,11 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
-	#def head_pos(self, state):
-	#	self.current = list(state.desired.positions)
-
-	def head_view(self, img):
-		image = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
-		#hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-		cv2.imshow("window", image)
-		cv2.waitKey(3)
-
 	def idle(self):
-		lt = uniform(2.0, 3.0) + self.score # time before nao looks away
-		bt = uniform(1.5, 2.5) - self.score
 		px = uniform(-1.8, 1.8)
 		py = uniform(-0.5, 0.4)
-		rospy.sleep(lt)
 		pos = [py, px]
 		self.move(pos, self.ph)
-		rospy.sleep(bt)
-		pos = self.pp
-		self.move(pos, self.ph)
-		rospy.sleep(0.5)
 
 	def target(self):
 		try:

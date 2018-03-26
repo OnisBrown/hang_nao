@@ -8,7 +8,7 @@ import rospy
 import roslib
 from move_naoqi import Mover
 import game
-from hang_nao.msg import GameState, PlayerState, NewTurn
+from hang_nao.msg import GameState, NewTurn
 
 # message on program exit
 def my_hook():

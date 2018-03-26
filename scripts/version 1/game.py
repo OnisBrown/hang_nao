@@ -71,11 +71,6 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		try:
 			#check if the turns are more than zero
 			while turns > 0:
-				self.tp.publish(self.tm)
-				self.gm.turn = turns
-				self.gm.verify = 2
-				self.gp.publish(self.gm)
-
 				os.system('clear')
 				# make a counter that starts with zero
 				failed = 0
@@ -105,7 +100,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				rospy.sleep(1)
 				guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 				print "\n"
-				if guess == "!": # if the user inputs an exclamation mark exit the game
+				if guess == "!":  # if the user inputs an exclamation mark exit the game
 					break
 				# set the players guess to guesses
 				guesses += guess
@@ -165,7 +160,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				else:
 					self.cp += 1
 
-
+				self.tp.pt = self.cp
+				self.tp.publish(self.tm)
 
 
 
