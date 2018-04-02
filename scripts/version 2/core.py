@@ -27,6 +27,7 @@ class Decisions:
 		self.NG.game_start()
 		self.score = 0.7
 		self.cp = 0
+		self.bgp = True
 		self.change = False
 
 	def head_view(self, img):
@@ -48,14 +49,29 @@ class Decisions:
 
 	def look(self):
 		self.NM.target()
-		print str(self.NM.pp)
 
 	def look_away(self):
-		if self.change:
-			self.NM.idle()
-			bt = uniform(2.0, 3.0) - self.score  # time before nao looks somewhere else
-			btt = Timer(bt, self.look_away)
-			btt.start()
+		temp = -3
+		for i in self.NG.pl:
+			if i.cg > 0:
+				if i.cg > temp:
+					temp = i.pos
+
+		if temp == -3:
+			if self.change:
+				self.NM.idle()
+				bt = uniform(2.0, 3.0) - self.score  # time before nao looks somewhere else
+				btt = Timer(bt, self.look_away)
+				btt.start()
+		else:
+			if self.bgp:
+				self.look(temp)
+				self.bgp = False
+			else:
+				self.NM.idle()
+				bt = uniform(2.0, 3.0) - self.score  # time before nao looks somewhere else
+				btt = Timer(bt, self.look_away)
+				btt.start()
 
 
 	def no(self):
@@ -86,6 +102,7 @@ class Decisions:
 			self.defeat()
 
 	def update_turn(self, newturn):
+		self.bgp = True
 		self.look()
 		self.NM.body_reset()
 		self.cp = newturn.pt

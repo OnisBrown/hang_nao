@@ -120,6 +120,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 						else:
 							self.gm.verify = 1
 							self.pl[self.cp].score += 0.1
+							self.pl[self.cp].cg += 1
 							print char + " is correct"
 
 				# how many turns are left

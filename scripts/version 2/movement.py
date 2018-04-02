@@ -212,7 +212,7 @@ class Mover:
 		pos = [self.pp[0]+py, self.pp[1] + px]
 		self.move(pos, self.ph)
 
-	def target(self):
+	def target(self, pos=None):
 		try:
 			#cwl = 2.0857  #leftmost radian robot can turn it's head
 			#cwr = -2.0857  #rightmost radian robot can turn it's head
@@ -220,9 +220,10 @@ class Mover:
 			#chd = 0.5149  #lowermost radian robot can tilt it's head
 			#vpw = 1.0630/2   #vertical field of view for the robot halved
 			#vph = 0.8308/2   #horizontal field of view for the robot halved
+			if pos is None:
+				pos = self.pp
 
 			self.jt.joint_names = self.headJ
-			pos = self.pp
 			self.move(pos, self.ph)
 
 		except KeyboardInterrupt:
