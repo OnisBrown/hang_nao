@@ -53,10 +53,9 @@ class Decisions:
 	def look_away(self):
 		if self.change:
 			self.NM.idle()
-			bt = uniform(1.5, 2.0) - self.score  # time before nao looks back
-			btt = Timer(bt, self.look)
+			bt = uniform(2.0, 3.0) - self.score  # time before nao looks somewhere else
+			btt = Timer(bt, self.look_away)
 			btt.start()
-		print str(self.NM.pp)
 
 
 	def no(self):
@@ -73,8 +72,8 @@ class Decisions:
 		self.NM.head_shake(0)
 
 	def answer(self, response):
-		self.look()
 		self.change = False
+		self.look()
 		if response.turn > 0:
 			if bool(response.win):
 				self.victory()
@@ -94,7 +93,7 @@ class Decisions:
 		player = self.NG.pl[self.cp]
 		self.NM.pp = player.pos
 		self.score = player.score
-		lt = uniform(2.0, 3.0) + self.score  # time before nao looks away
+		lt = uniform(2.0, 4.0) + self.score  # the random time is based on mutual gaze data
 		rospy.sleep(0.5)
 		ltt = Timer(lt, self.look_away)
 		ltt.start()

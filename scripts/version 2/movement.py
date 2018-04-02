@@ -197,9 +197,19 @@ class Mover:
 			sys.exit()
 
 	def idle(self):
-		px = uniform(-1.8, 1.8)
-		py = uniform(-0.5, 0.4)
-		pos = [py, px]
+		px = uniform(-0.4, 0.4)
+		if px < 0:
+			px -= 0.2
+		else:
+			px += 0.2
+
+		py = uniform(-0.2, 0.2)
+		if py < 0:
+			py -= 0.1
+		else:
+			py += 0.1
+
+		pos = [self.pp[0]+py, self.pp[1] + px]
 		self.move(pos, self.ph)
 
 	def target(self):

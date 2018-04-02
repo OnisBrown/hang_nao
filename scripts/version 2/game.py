@@ -13,14 +13,12 @@ class Player:
 		self.id = []
 		self.faces = []
 		self.pos = []
+		self.cg = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
-		lm = open("medium.txt", "r")
 		lh = open("hard.txt", "r")
-		am = lm.read()
 		ah = lh.read()
-		self.sm = am.split()
 		self.sh = ah.split()
 		self.pl = list()
 		self.cp = 0
@@ -40,15 +38,9 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 			self.pl[i].id = i + 1
 			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
-		hard = raw_input("play on hard mode? (y/n) ")
-
-		wm = self.sm[randint(0, 212)]
 		wh = self.sh[randint(0, 212)]
 
-		if hard == "y":
-			word = wh
-		else:
-			word = wm
+		word = wh
 
 		print "Time to play hangman!"
 		print ""
