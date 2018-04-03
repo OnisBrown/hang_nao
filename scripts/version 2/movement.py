@@ -32,6 +32,11 @@ class Mover:
 		self.interval = 0.5
 
 		# joint names for each body part used by related message
+
+		# 2.0857 is leftmost radian robot can turn it's head
+		# -2.0857 is rightmost radian robot can turn it's head
+		# -0.6720 is uppermost radian robot can tilt it's head
+		# 0.5149 is lowermost radian robot can tilt it's head
 		self.headJ = ['HeadPitch', 'HeadYaw']
 		self.LArmJ = ['LElbowRoll', 'LElbowYaw', 'LShoulderPitch', 'LShoulderRoll', 'LWristYaw']
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
@@ -73,9 +78,6 @@ class Mover:
 	# method for returning the robot to a neutral position
 	def body_reset(self):
 		try:
-			self.jt.joint_names = self.headJ
-			goal = [0.0, 0.0]
-			self.move(goal, self.ph)
 			self.jt.joint_names = self.LHJ
 			goal = [0.0]
 			self.move(goal, self.phl)
@@ -118,6 +120,8 @@ class Mover:
 			self.move(goal, p)
 			rospy.sleep(i)
 
+			self.target()
+
 		except KeyboardInterrupt:
 			sys.exit()
 
@@ -159,10 +163,12 @@ class Mover:
 			self.move(goal, p)
 			rospy.sleep(i)
 
+			self.target()
+
 		except KeyboardInterrupt:
 			sys.exit()
 
-	#
+	# causes the nao to raise it's arms and clench fists
 	def cheer(self):
 		try:
 			i = self.interval
@@ -196,6 +202,7 @@ class Mover:
 		except KeyboardInterrupt:
 			sys.exit()
 
+	# causes the nao to look away from players face
 	def idle(self):
 		px = uniform(-0.4, 0.4)
 		if px < 0:
@@ -205,21 +212,31 @@ class Mover:
 
 		py = uniform(-0.2, 0.2)
 		if py < 0:
-			py -= 0.1
+			py -= 0.05
 		else:
-			py += 0.1
+			py += 0.05
 
-		pos = [self.pp[0]+py, self.pp[1] + px]
+		ty = self.pp[0]+py
+		tx = self.pp[1] + px
+
+		if abs(ty) > 0.5:
+			if ty > 0:
+				ty = 0.49
+			else:
+				ty = -0.49
+
+		if abs(tx) > 2:
+			if tx > 0:
+				tx = 2.0
+			else:
+				tx = -2.0
+
+		pos = [ty, tx]
 		self.move(pos, self.ph)
 
 	def target(self, pos=None):
 		try:
-			#cwl = 2.0857  #leftmost radian robot can turn it's head
-			#cwr = -2.0857  #rightmost radian robot can turn it's head
-			#chu = -0.6720  #uppermost radian robot can tilt it's head
-			#chd = 0.5149  #lowermost radian robot can tilt it's head
-			#vpw = 1.0630/2   #vertical field of view for the robot halved
-			#vph = 0.8308/2   #horizontal field of view for the robot halved
+
 			if pos is None:
 				pos = self.pp
 

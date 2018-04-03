@@ -140,12 +140,14 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					else:
 						print "_",
 
+
+
 				self.gm.turn = turns
 				self.gp.publish(self.gm)
 
-				rospy.sleep(0.5)
+				rospy.sleep(1.5)
 
-				raw_input('\npress enter...')
+				#raw_input('\npress enter...')
 
 				if self.cp >= self.pCount - 1:
 					self.cp = 0
