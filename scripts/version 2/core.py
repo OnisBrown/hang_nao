@@ -13,6 +13,7 @@ import cv2, cv_bridge
 from sensor_msgs.msg import Image
 from threading import Timer
 from random import uniform, randint
+import numpy
 
 class Decisions:
 	def __init__(self):
@@ -23,7 +24,8 @@ class Decisions:
 		self.NM = Mover()
 		self.NG = game.HangMan()
 		self.bridge = cv_bridge.CvBridge()
-		cv2.namedWindow("window", 1)
+		cv2.namedWindow("rgb", 1)
+		self.face_cascade = cv2.CascadeClassifier('haarcasade_frontalface_default.xml')
 		rospy.Subscriber('/game/GameState', GameState, self.answer)
 		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
@@ -31,10 +33,13 @@ class Decisions:
 		self.NG.game_start()
 
 	def head_view(self, img):
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
+		for (x, y, w, h) in faces:
+			cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 		image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
-		cv2.imshow("window", image)
+		cv2.imshow("rgb", image)
 		cv2.waitKey(3)
-
 
 	def yes(self):
 		if self.score < 0.8:

@@ -99,17 +99,21 @@ class Mover:
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
+			px = self.pp[1]
+			py = self.pp[0]
+			
 			if score >= 0.5:
-				self.interval = 0.3
-				sharp = 0.6
+				self.interval = 0.4
+				sharp = 0.4
 
 			else:
 				self.interval = 0.2
 				sharp = 0.2
 
+			if py + sharp > 0.5:
+				py = 0.5 - sharp
+
 			i = self.interval
-			px = self.pp[1]
-			py = self.pp[0]
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -143,6 +147,14 @@ class Mover:
 				incline = 0.4
 				sharp = 0.6
 
+			# checks to make sure that the nao doesn't exceed it's range of movement
+			if py + incline > 0.5:
+				incline = 0
+			if -1.4 > px:
+				px = -1.4 + sharp
+			if 1.4 < px:
+				px = 1.4 - sharp
+
 			i = self.interval
 			goal = [py, px]
 			self.move(goal, p)
@@ -154,6 +166,9 @@ class Mover:
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py + incline, px + sharp]
+			self.move(goal, p)
+			rospy.sleep(i)
+			goal = [py + incline, px]
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py + incline, px - sharp]
