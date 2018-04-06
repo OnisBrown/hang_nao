@@ -33,10 +33,10 @@ class Decisions:
 		self.NG.game_start()
 
 	def head_view(self, img):
-		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
-		for (x, y, w, h) in faces:
-			cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+		# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		# faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
+		# for (x, y, w, h) in faces:
+		# 	cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 		image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		cv2.imshow("rgb", image)
 		cv2.waitKey(3)
@@ -53,18 +53,20 @@ class Decisions:
 	def look(self, pos=None):
 		if pos is None:
 			self.NM.target()
-			lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
+			lt = uniform(1.5, 2) + self.score  # maintains gaze for random time based on mutual gaze data
 			ltt = Timer(lt, self.look_away)
 			ltt.start()
 		else:
 			self.NM.target(pos)
-			lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
-			ltt = Timer(lt, self.look_away)
+			lt = uniform(1.5, 2) - self.score  # maintains gaze for random time based on mutual gaze data
+			ltt = Timer(lt, self.look)
 			ltt.start()
+		rospy.sleep(0.2)
 
 	def look_away(self):
 		temp = [0]
-		for i in self.NG.pl:
+
+		for i in self.NG.pl: # goes through player list picking out the best guesser(s)
 			if i.cg > 0:
 				if i.cg == temp[0]:
 					temp.append(i.pos)
@@ -74,20 +76,29 @@ class Decisions:
 
 		if self.change:
 			if self.bgp:
-				if temp[0] != 0:
+				self.bgp = False
+				if temp[0] != 0: # if the temp list is unchanged then the
 					if len(temp) == 1:
 						bestp = temp[0]
 					else:
 						bestp = temp[randint(0, 1)]
 
-					print bestp
-
 					if bestp != self.NM.pp: # if the bot decides that the current player is the best then code moves on
 						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
-						btt = Timer(bt, self.look(bestp))
+						btt = Timer(bt, self.look, args=(bestp,))
 						btt.start()
 
-				self.bgp = False
+					else:
+						self.NM.idle()
+						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
+						btt = Timer(bt, self.look)
+						btt.start()
+				else:
+					self.NM.idle()
+					bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
+					btt = Timer(bt, self.look)
+					btt.start()
+
 			else:
 				self.NM.idle()
 				bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else

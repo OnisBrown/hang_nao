@@ -101,9 +101,9 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
-			
+
 			if score >= 0.5:
-				self.interval = 0.4
+				self.interval = 0.3
 				sharp = 0.4
 
 			else:
@@ -140,12 +140,12 @@ class Mover:
 			if score >= 0.5:
 				self.interval = 0.2
 				incline = 0
-				sharp = 0.3
+				sharp = 0.2
 
 			else:
 				self.interval = 0.4
-				incline = 0.4
-				sharp = 0.6
+				incline = 0.2
+				sharp = 0.3
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 			if py + incline > 0.5:
@@ -219,13 +219,17 @@ class Mover:
 
 	# causes the nao to look away from players face
 	def idle(self):
-		px = uniform(-0.4, 0.4)
+		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.25, 0.4]
+		px = self.pp[1]
+		py = self.pp[0]
+
+		px += uniform(-0.2, 0.2)
 		if px < 0:
 			px -= 0.2
 		else:
 			px += 0.2
 
-		py = uniform(-0.2, 0.2)
+		py += uniform(-0.2, 0.2)
 		if py < 0:
 			py -= 0.05
 		else:
@@ -240,11 +244,11 @@ class Mover:
 			else:
 				ty = -0.49
 
-		if abs(tx) > 2:
+		if abs(tx) > 1.9:
 			if tx > 0:
-				tx = 2.0
+				tx = 1.8
 			else:
-				tx = -2.0
+				tx = -1.8
 
 		pos = [ty, tx]
 		self.move(pos, self.ph)
@@ -254,6 +258,18 @@ class Mover:
 
 			if pos is None:
 				pos = self.pp
+
+			if pos[0] > 0.4:
+				pos[0] = 0.3
+
+			if pos[0] < -0.4:
+				pos[0] = -0.3
+
+			if pos[1] < -1.5:
+				pos[1] = -1.5
+
+			if pos[1] > 1.5:
+				pos[1] = 1.5
 
 			self.jt.joint_names = self.headJ
 			self.move(pos, self.ph)
