@@ -67,6 +67,7 @@ class Decisions:
 		self.trace()
 		self.change = False
 		self.idle = True
+		self.tracking = False
 		if response.turn > 0:
 			if bool(response.win):
 				self.victory()
@@ -88,30 +89,31 @@ class Decisions:
 		image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 		faces = self.face_cascade.detectMultiScale(gray, 1.3, 3)
+		Fpos = self.NM.pp
 		for (x, y, w, h) in faces:
 			if x > 479:
 				temp = x - 479
 				if temp < diff:
 					diff = temp
-					FposX = self.HX + x * unitX
+					Fpos[1] = self.HX + x * unitX
 
 			else:
 				temp = 479 - x
 				if temp < diff:
 					diff = temp
-					FposX = self.HX - x*unitX
+					Fpos[1] = self.HX - x*unitX
 
 			if y < 639:
 				temp = 639 - y
 				if temp < diff:
 					diff = temp
-					FposY = self.HY - y*unitY
+					Fpos[0] = self.HY - y*unitY
 			else:
 				if temp < diff:
 					diff = temp
-					FposY = self.HY + y * unitY
+					Fpos[0] = self.HY + y * unitY
 
-			self.NM.pp = [FposY, FposX]
+		self.NM.pp = Fpos
 
 		if self.tracking:
 			self.NM.target()
@@ -122,7 +124,7 @@ class Decisions:
 	def trace(self):
 		self.tracking = True
 		self.idle = False
-		rospy.sleep(0.5)
+		rospy.sleep(0.1)
 		lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
 		ltt = Timer(lt, self.look_away)
 		ltt.start()
@@ -136,11 +138,12 @@ class Decisions:
 
 	def look_away(self):
 		self.tracking = False
+		rospy.sleep(0.1)
 		if self.idle:
 			self.trace()
 			return
-		else:
-			self.idle = True
+		
+		self.idle = True
 		temp = [0]
 		for i in self.NG.pl: # goes through player list picking out the best guesser(s)
 			if i.cg > 0:

@@ -123,7 +123,6 @@ class Mover:
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
-
 			self.target()
 
 		except KeyboardInterrupt:
@@ -177,7 +176,6 @@ class Mover:
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
-
 			self.target()
 
 		except KeyboardInterrupt:

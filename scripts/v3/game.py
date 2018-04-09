@@ -151,7 +151,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					rospy.sleep(2.0)
+					rospy.sleep(1.5)
 					os.system('clear')
 
 					if self.cp >= self.pCount - 1:

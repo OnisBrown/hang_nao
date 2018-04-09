@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 1/core.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 1/game.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 1/hard.txt" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 1/medium.txt" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 1/move_naoqi.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 2/core.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 2/game.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 2/hard.txt" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/scripts/version 2/movement.py" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/scripts/v3/core.py" afterPath="$PROJECT_DIR$/scripts/v3/core.py" />
+      <change beforePath="$PROJECT_DIR$/scripts/v3/game.py" afterPath="$PROJECT_DIR$/scripts/v3/game.py" />
+      <change beforePath="$PROJECT_DIR$/scripts/v3/movement.py" afterPath="$PROJECT_DIR$/scripts/v3/movement.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -25,8 +18,8 @@
       <file leaf-file-name="movement.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/v3/movement.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="818">
-              <caret line="281" column="22" lean-forward="true" selection-start-line="281" selection-start-column="22" selection-end-line="281" selection-end-column="22" />
+            <state relative-caret-position="1718">
+              <caret line="124" column="26" lean-forward="false" selection-start-line="124" selection-start-column="26" selection-end-line="124" selection-end-column="26" />
               <folding>
                 <element signature="e#27#37#0" expanded="true" />
               </folding>
@@ -34,11 +27,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="core.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="core.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/v3/core.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2028">
-              <caret line="146" column="35" lean-forward="true" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
+            <state relative-caret-position="188">
+              <caret line="144" column="8" lean-forward="false" selection-start-line="144" selection-start-column="8" selection-end-line="144" selection-end-column="8" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -46,11 +39,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="game.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/v3/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="66" column="16" lean-forward="false" selection-start-line="66" selection-start-column="16" selection-end-line="66" selection-end-column="16" />
+            <state relative-caret-position="870">
+              <caret line="86" column="35" lean-forward="true" selection-start-line="86" selection-start-column="35" selection-end-line="86" selection-end-column="35" />
               <folding>
                 <element signature="e#26#36#0" expanded="true" />
               </folding>
@@ -69,12 +62,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>sleep</find>
       <find>tp</find>
       <find>self.curr</find>
       <find>rospy.sleep</find>
       <find>idle</find>
       <find>change</find>
+      <find>sleep</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -99,8 +92,8 @@
         <option value="$PROJECT_DIR$/scripts/v2/core.py" />
         <option value="$PROJECT_DIR$/scripts/v2/game.py" />
         <option value="$PROJECT_DIR$/scripts/v3/movement.py" />
-        <option value="$PROJECT_DIR$/scripts/v3/core.py" />
         <option value="$PROJECT_DIR$/scripts/v3/game.py" />
+        <option value="$PROJECT_DIR$/scripts/v3/core.py" />
       </list>
     </option>
   </component>
@@ -427,16 +420,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/v3/movement.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="818">
-          <caret line="281" column="22" lean-forward="true" selection-start-line="281" selection-start-column="22" selection-end-line="281" selection-end-column="22" />
-          <folding>
-            <element signature="e#27#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/v2/game.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="620">
@@ -453,22 +436,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/v3/core.py">
+    <entry file="file://$PROJECT_DIR$/scripts/v3/movement.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2028">
-          <caret line="146" column="35" lean-forward="true" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
+        <state relative-caret-position="1718">
+          <caret line="124" column="26" lean-forward="false" selection-start-line="124" selection-start-column="26" selection-end-line="124" selection-end-column="26" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#27#37#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/v3/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="66" column="16" lean-forward="false" selection-start-line="66" selection-start-column="16" selection-end-line="66" selection-end-column="16" />
+        <state relative-caret-position="870">
+          <caret line="86" column="35" lean-forward="true" selection-start-line="86" selection-start-column="35" selection-end-line="86" selection-end-column="35" />
           <folding>
             <element signature="e#26#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/v3/core.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="144" column="8" lean-forward="false" selection-start-line="144" selection-start-column="8" selection-end-line="144" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
