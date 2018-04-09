@@ -29,8 +29,6 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.gm = GameState()
 		self.tm = NewTurn()
 
-	def game_start(self):
-
 		self.pCount = int(raw_input("How many players are there? "))
 
 		for i in range(self.pCount):
@@ -38,6 +36,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 			self.pl[i].id = i + 1
 			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
+	def game_start(self):
 		for r in range(1, 4):
 			try:
 
@@ -151,7 +150,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					rospy.sleep(1.5)
+					time.sleep(1.5)
 					os.system('clear')
 
 					if self.cp >= self.pCount - 1:

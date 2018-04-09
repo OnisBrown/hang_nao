@@ -12,12 +12,18 @@ import cv2
 import cv_bridge
 from sensor_msgs.msg import Image
 from control_msgs.msg import JointTrajectoryControllerState
-from threading import Timer, Thread
+from threading import Timer, Thread, Lock
 from random import uniform, randint
+from os.path import realpath, normpath
 import numpy
 
 class Decisions:
 	def __init__(self):
+		# 1280x960 resolution
+		# 60.9d ~ 1.062906r HFOV | 47.6d ~ 0.8307767r VFOV
+		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
+		self.unitX = 0.00083039531
+		self.unitY = 0.00086539239
 		self.score = 0.7
 		self.cp = 0
 		self.bgp = True
@@ -26,17 +32,69 @@ class Decisions:
 		self.NG = game.HangMan()
 		self.bridge = cv_bridge.CvBridge()
 		cv2.namedWindow("rgb", 1)
-		self.face_cascade = cv2.CascadeClassifier('haarcasade_frontalface_default.xml')
+		self.image = []
+		path = normpath(realpath(cv2.__file__) + '../../../../../share/OpenCV/haarcascades/haarcasade_frontalface_default.xml')
+		self.face_cascade = cv2.CascadeClassifier(path)
 		rospy.Subscriber('/game/GameState', GameState, self.answer)
 		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
 		self.tracking = False
-		self.idle = False
 		self.HY = 0.0
 		self.HX = 0.0
 		self.NM.body_reset()
+		self.idle_lock = Lock()
+		pan_start = Thread(target=self.pan)
+		pan_start.start()
+		print "Panning for players"
+		pan_start.join()
 		self.NG.game_start()
+
+	def pan(self):
+			angle = -1.5
+			found = 0
+			self.NM.target([0, -1.5])
+			time.sleep(0.5)
+			while angle < 1.4 and found < len(self.NG.pl):
+				try:
+					self.NM.target([0, angle])
+					faces = self.face_detect()
+
+					for (x, y, w, h) in faces:
+						Fpos = self.NG.pl[found].pos
+						# gets coordinates based on centre of the face found
+						x += w / 2
+						y += h / 2
+
+						# if face is within 5 degrees of old location lets
+
+						if (Fpos[1] - 110 * self.unitX) < x < (Fpos[1] + 110 * self.unitX):
+							if x > 479:
+								Fpos[1] = self.HX + x * self.unitX
+							else:
+								Fpos[1] = self.HX - x * self.unitX
+
+						if (Fpos[0] - 110 * self.unitY) < y < (Fpos[0] + 110 * self.unitY):
+							if y > 639:
+								Fpos[0] = y * self.unitY
+							else:
+								Fpos[0] = - y * self.unitY
+
+						self.NG.pl[found].pos = Fpos
+
+						found += 1
+
+					angle += 100*self.unitX # moves in increments of 4 degrees
+
+				except KeyboardInterrupt:
+					sys.exit()
+
+			print "acquired " + str(found) + " players"
+
+
+
+
+
 
 	def head_update(self, pos):
 		self.HY = pos.actual.positions[0]
@@ -66,65 +124,70 @@ class Decisions:
 	def answer(self, response):
 		self.trace()
 		self.change = False
-		self.idle = True
 		self.tracking = False
 		if response.turn > 0:
 			if bool(response.win):
 				self.victory()
+
 			else:
 				if response.verify == 1:
 					self.yes()
+					return
+
 				if response.verify == 0:
 					self.no()
+					return
+
 		else:
 			self.defeat()
 
+
+		self.change = True
+
+	def face_detect(self):
+		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+		faces = self.face_cascade.detectMultiScale(gray, 1.5, 3)
+		return faces
+
 	def head_view(self, img):
-		# 1280x960 resolution
-		# 60.9d ~ 1.062906r HFOV | 47.6d ~ 0.8307767r VFOV
-		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
-		unitX = 0.00083039531
-		unitY = 0.00086539239
-		diff = 99999999999
-		image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
-		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.3, 3)
-		Fpos = self.NM.pp
+		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
+		faces = self.face_detect()
+		Fpos = self.NG.pl[self.cp].pos
+
+		# goes through all faces in view checking the location of the current players face face
 		for (x, y, w, h) in faces:
-			if x > 479:
-				temp = x - 479
-				if temp < diff:
-					diff = temp
-					Fpos[1] = self.HX + x * unitX
 
-			else:
-				temp = 479 - x
-				if temp < diff:
-					diff = temp
-					Fpos[1] = self.HX - x*unitX
+			# gets coordinates based on centre of the face found
+			x += w / 2
+			y += h / 2
 
-			if y < 639:
-				temp = 639 - y
-				if temp < diff:
-					diff = temp
-					Fpos[0] = self.HY - y*unitY
-			else:
-				if temp < diff:
-					diff = temp
-					Fpos[0] = self.HY + y * unitY
+			# if face is within 5 degrees of old location lets
 
-		self.NM.pp = Fpos
+			if (Fpos[1] - 110*self.unitX) < x < (Fpos[1] + 110*self.unitX):
+				if x > 479:
+					Fpos[1] = self.HX + x * self.unitX
+				else:
+					Fpos[1] = self.HX - x * self.unitX
+
+			if (Fpos[0] - 110*self.unitY) < y < (Fpos[0] + 110*self.unitY):
+				if y > 639:
+					Fpos[0] = self.HY + y*self.unitY
+				else:
+					Fpos[0] = self.HY - y * self.unitY
+
+		self.NG.pl[self.cp].pos = Fpos
 
 		if self.tracking:
+			self.NM.pp = self.NG.pl[self.cp].pos
 			self.NM.target()
 
-		cv2.imshow("rgb", image)
+		cv2.imshow("rgb", self.image)
 		cv2.waitKey(3)
 
 	def trace(self):
+		time.sleep(0.2)
+		self.idle_lock.acquire()
 		self.tracking = True
-		self.idle = False
-		rospy.sleep(0.1)
 		lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
 		ltt = Timer(lt, self.look_away)
 		ltt.start()
@@ -132,18 +195,11 @@ class Decisions:
 
 	def look(self, pos):
 		self.NM.target(pos)
-		lt = uniform(1.5, 2) - self.score  # maintains gaze for random time based on mutual gaze data
-		ltt = Timer(lt, self.trace)
-		ltt.start()
 
 	def look_away(self):
+		self.idle_lock.release()
 		self.tracking = False
-		rospy.sleep(0.1)
-		if self.idle:
-			self.trace()
-			return
-		
-		self.idle = True
+
 		temp = [0]
 		for i in self.NG.pl: # goes through player list picking out the best guesser(s)
 			if i.cg > 0:
@@ -163,21 +219,26 @@ class Decisions:
 						bestp = temp[randint(0, 1)]
 
 					if bestp != self.NM.pp: # if the bot decides that the current player is the best then code moves on
-						bt = uniform(1.5, 2.0) - self.score  # time before nao looks somewhere else
-						btt = Timer(bt, self.look, args=(bestp,))
+						self.look(bestp)
+						bt = uniform(2.0, 2.5) - self.score  # time before nao looks somewhere else
+						btt = Timer(bt, self.trace)
 						btt.start()
+						time.sleep(bt+0.5)
+						btt.cancel()
+						return
 
-			else:
-				self.NM.idle()
-				bt = uniform(1.5, 2.0) - self.score  # time before nao looks somewhere else
-				btt = Timer(bt, self.trace)
-				btt.start()
-
+			self.NM.idle()
+			bt = uniform(2, 2.5) - self.score  # time before nao looks somewhere else
+			btt = Timer(bt, self.trace)
+			btt.start()
+			time.sleep(bt+0.5)
+			btt.cancel()
+			return
 
 	def update_turn(self, newturn):
+		print "new turn"
 		self.NM.body_reset()
 		self.bgp = True
-		self.idle = False
 		self.cp = newturn.pt
 		self.change = True
 		player = self.NG.pl[self.cp]

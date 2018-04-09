@@ -248,8 +248,6 @@ class Mover:
 		if tx < -1.9:
 			tx = -1.9
 
-
-
 		pos = [ty, tx]
 		self.move(pos, self.ph)
 
@@ -275,6 +273,6 @@ class Mover:
 
 			self.jt.joint_names = self.headJ
 			self.move(pos, self.ph)
-
+			rospy.sleep(0.2)
 		except KeyboardInterrupt:
 			sys.exit()
