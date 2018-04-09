@@ -103,15 +103,15 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				self.interval = 0.3
+				self.interval = 0.2
 				sharp = 0.4
 
 			else:
-				self.interval = 0.2
+				self.interval = 0.5
 				sharp = 0.2
 
 			if py + sharp > 0.5:
-				py = 0.5 - sharp
+				py = 0.4 - sharp
 
 			i = self.interval
 			goal = [py, px]
@@ -140,12 +140,12 @@ class Mover:
 			if score >= 0.5:
 				self.interval = 0.2
 				incline = 0
-				sharp = 0.2
+				sharp = 0.3
 
 			else:
-				self.interval = 0.4
+				self.interval = 0.3
 				incline = 0.2
-				sharp = 0.3
+				sharp = 0.2
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 			if py + incline > 0.5:
@@ -172,7 +172,7 @@ class Mover:
 			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py + incline, px - sharp]
-			self.move(goal, p)  #
+			self.move(goal, p)
 			rospy.sleep(i)
 			goal = [py, px]
 			self.move(goal, p)
@@ -220,8 +220,9 @@ class Mover:
 	# causes the nao to look away from players face
 	def idle(self):
 		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.25, 0.4]
-		px = self.pp[1]
-		py = self.pp[0]
+		px = 0
+		py = 0
+		self.interval = 0.2
 
 		px += uniform(-0.2, 0.2)
 		if px < 0:
@@ -235,41 +236,44 @@ class Mover:
 		else:
 			py += 0.05
 
-		ty = self.pp[0]+py
+		ty = self.pp[0] + py
 		tx = self.pp[1] + px
 
-		if abs(ty) > 0.5:
-			if ty > 0:
-				ty = 0.49
-			else:
-				ty = -0.49
+		if ty > 0.5:
+			ty = 0.5
+		if ty < -0.5:
+			ty = -0.5
 
-		if abs(tx) > 1.9:
-			if tx > 0:
-				tx = 1.8
-			else:
-				tx = -1.8
+		if tx > 1.9:
+			tx = 1.9
+
+		if tx < -1.9:
+			tx = -1.9
+
+
 
 		pos = [ty, tx]
 		self.move(pos, self.ph)
 
 	def target(self, pos=None):
 		try:
+			self.interval = 0.2
 
 			if pos is None:
 				pos = self.pp
 
 			if pos[0] > 0.4:
-				pos[0] = 0.3
+				pos[0] = 0.4
 
 			if pos[0] < -0.4:
-				pos[0] = -0.3
+				pos[0] = -0.4
+
+			if pos[1] > 1.5:
+				pos[1] = 1.5
 
 			if pos[1] < -1.5:
 				pos[1] = -1.5
 
-			if pos[1] > 1.5:
-				pos[1] = 1.5
 
 			self.jt.joint_names = self.headJ
 			self.move(pos, self.ph)

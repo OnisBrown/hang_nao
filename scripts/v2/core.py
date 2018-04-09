@@ -29,15 +29,20 @@ class Decisions:
 		rospy.Subscriber('/game/GameState', GameState, self.answer)
 		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
+		self.trace = True
+		self.HY = 0.0
+		self.HX = 0.0
 		self.NM.body_reset()
 		self.NG.game_start()
 
 	def head_view(self, img):
-		# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		# faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
-		# for (x, y, w, h) in faces:
-		# 	cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+		# 1280x960 resolution
+		# 60.9d ~ 1.062906r HFOV | 47.6d ~ 0.8307767r VFOV
+		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
+		unitX = 0.00083039531
+		unitY = 0.00086539239
 		image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
+
 		cv2.imshow("rgb", image)
 		cv2.waitKey(3)
 
@@ -53,15 +58,17 @@ class Decisions:
 	def look(self, pos=None):
 		if pos is None:
 			self.NM.target()
-			lt = uniform(1.5, 2) + self.score  # maintains gaze for random time based on mutual gaze data
+			lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
+			#print "attention: " + str(lt)
 			ltt = Timer(lt, self.look_away)
 			ltt.start()
 		else:
 			self.NM.target(pos)
-			lt = uniform(1.5, 2) - self.score  # maintains gaze for random time based on mutual gaze data
-			ltt = Timer(lt, self.look)
-			ltt.start()
-		rospy.sleep(0.2)
+			bt = uniform(1.5, 2.0) - self.score  # maintains gaze for random time based on mutual gaze data
+			#print "away: " + str(bt)
+			btt = Timer(bt, self.look)
+			btt.start()
+		return
 
 	def look_away(self):
 		temp = [0]
@@ -84,26 +91,16 @@ class Decisions:
 						bestp = temp[randint(0, 1)]
 
 					if bestp != self.NM.pp: # if the bot decides that the current player is the best then code moves on
-						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
+						bt = uniform(1.5, 2.0) - self.score  # time before nao looks somewhere else
 						btt = Timer(bt, self.look, args=(bestp,))
 						btt.start()
+						return
 
-					else:
-						self.NM.idle()
-						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
-						btt = Timer(bt, self.look)
-						btt.start()
-				else:
-					self.NM.idle()
-					bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
-					btt = Timer(bt, self.look)
-					btt.start()
-
-			else:
-				self.NM.idle()
-				bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
-				btt = Timer(bt, self.look)
-				btt.start()
+			self.NM.idle()
+			bt = uniform(1.5, 2.0) - self.score  # time before nao looks somewhere else
+			btt = Timer(bt, self.look)
+			btt.start()
+		return
 
 	def no(self):
 		self.NM.head_shake(self.score)

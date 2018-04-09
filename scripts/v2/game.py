@@ -30,7 +30,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.tm = NewTurn()
 
 	def game_start(self):
-
+		print "\nnew round starting in"
 		self.pCount = int(raw_input("How many players are there? "))
 
 		for i in range(self.pCount):
@@ -38,8 +38,14 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 			self.pl[i].id = i + 1
 			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
-		for r in range(1, 3):
+		for r in range(1, 4):
 			try:
+				os.system('clear')
+				print "new round in..."
+				for t in range(5, 0, -1):
+					print str(t) + "... "
+					rospy.sleep(0.5)
+
 				os.system('clear')
 				print "Round " + str(r) + "!"
 				print "\n__________________________________________\n"
@@ -53,7 +59,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "Time to play hangman!"
 				print ""
 				print "Start guessing..."
-				time.sleep(1)
+				rospy.sleep(1.5)
 
 				#creates variables to track guesses
 				guesses = ''
@@ -96,7 +102,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					print "Player " + str(self.pl[self.cp].id) + ' your turn\n'
 					print "You have ", + turns, ' guesses remaining'
 					print "\nIncorrect guesses: " + misses
-					rospy.sleep(0.5)
+					rospy.sleep(0.2)
 					guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 					print "\n"
 					if guess == "!": # if the user inputs an exclamation mark exit the game
@@ -147,21 +153,11 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 						print "\nYou Loose"
 						self.gm.win = 0
 
-					for char in word:
-						if char in guesses:
-							print char,
-							if char not in correct:
-								correct += char
-
-						else:
-							print "_",
-
-
-
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					rospy.sleep(1.5)
+					rospy.sleep(1.0)
+					os.system('clear')
 
 					if self.cp >= self.pCount - 1:
 						self.cp = 0
