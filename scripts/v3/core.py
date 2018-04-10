@@ -14,7 +14,6 @@ from sensor_msgs.msg import Image
 from control_msgs.msg import JointTrajectoryControllerState
 from threading import Timer, Thread, Lock
 from random import uniform, randint
-from os.path import realpath, normpath
 import numpy
 
 class Decisions:
@@ -24,22 +23,20 @@ class Decisions:
 		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
 		self.unitX = 0.00083039531
 		self.unitY = 0.00086539239
-		self.score = 0.7
-		self.cp = 0
-		self.bgp = True
-		self.change = True
+		self.tol = 200
 		self.NM = Mover()
 		self.NG = game.HangMan()
 		self.bridge = cv_bridge.CvBridge()
 		cv2.namedWindow("rgb", 1)
 		self.image = []
-		path = normpath(realpath(cv2.__file__) + '../../../../../share/OpenCV/haarcascades/haarcasade_frontalface_default.xml')
-		self.face_cascade = cv2.CascadeClassifier(path)
-		rospy.Subscriber('/game/GameState', GameState, self.answer)
-		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
+		self.cp = 0
+		self.score = 0.7
+		self.bgp = True
+		self.change = True
+		self.tracking = False
+		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
-		self.tracking = False
 		self.HY = 0.0
 		self.HX = 0.0
 		self.NM.body_reset()
@@ -48,53 +45,57 @@ class Decisions:
 		pan_start.start()
 		print "Panning for players"
 		pan_start.join()
+		# initialise game subscribers and start the game
+		rospy.Subscriber('/game/GameState', GameState, self.answer)
+		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
 		self.NG.game_start()
 
 	def pan(self):
-			angle = -1.5
-			found = 0
-			self.NM.target([0, -1.5])
-			time.sleep(0.5)
-			while angle < 1.4 and found < len(self.NG.pl):
-				try:
-					self.NM.target([0, angle])
-					faces = self.face_detect()
+		angle = -1
+		found = 0
+		self.NM.target([0, -1])
+		print str(len(self.NG.pl))
+		while angle < 1 and found < len(self.NG.pl):
+			try:
+				print str(found)
+				self.NM.target([0, angle])
+				faces = self.face_detect()
+				for (x, y, w, h) in faces:
+					new = True
+					Fpos = self.NG.pl[found].pos
+					# gets coordinates based on centre of the face found
+					x += w / 2
+					y += h / 2
 
-					for (x, y, w, h) in faces:
-						Fpos = self.NG.pl[found].pos
-						# gets coordinates based on centre of the face found
-						x += w / 2
-						y += h / 2
+					if x > 639:
+						Fpos[1] = self.HX - ((x-639)*self.unitX)
+					else:
+						Fpos[1] = self.HX + ((639-x)*self.unitX)
 
-						# if face is within 5 degrees of old location lets
+					if y > 479:
+						Fpos[0] = 0 + ((y-479)*self.unitY)
+					else:
+						Fpos[0] = 0 - ((479-y)*self.unitY)
 
-						if (Fpos[1] - 110 * self.unitX) < x < (Fpos[1] + 110 * self.unitX):
-							if x > 479:
-								Fpos[1] = self.HX + x * self.unitX
-							else:
-								Fpos[1] = self.HX - x * self.unitX
+					# if face is within 5 degrees of already acquired skips it
 
-						if (Fpos[0] - 110 * self.unitY) < y < (Fpos[0] + 110 * self.unitY):
-							if y > 639:
-								Fpos[0] = y * self.unitY
-							else:
-								Fpos[0] = - y * self.unitY
+					for i in self.NG.pl:
+						if (i.pos[0] + self.tol*self.unitY) < Fpos[0] < (i.pos[0] - self.tol*self.unitY):
+							if (i.pos[1] + self.tol*self.unitX) < Fpos[1] < (i.pos[1] - self.tol*self.unitX):
 
+
+					if new:
 						self.NG.pl[found].pos = Fpos
-
+						print "new"
 						found += 1
+					else:
+						print "repeat"
 
-					angle += 100*self.unitX # moves in increments of 4 degrees
+				angle += 100*self.unitX # moves in increments of 4 degrees
+			except KeyboardInterrupt:
+				sys.exit()
 
-				except KeyboardInterrupt:
-					sys.exit()
-
-			print "acquired " + str(found) + " players"
-
-
-
-
-
+		print "acquired " + str(found) + " players"
 
 	def head_update(self, pos):
 		self.HY = pos.actual.positions[0]
@@ -111,7 +112,6 @@ class Decisions:
 	def no(self):
 		self.NM.head_shake(self.score)
 
-
 	def victory(self):
 		self.NM.cheer()
 		self.NM.cheer()
@@ -123,6 +123,10 @@ class Decisions:
 
 	def answer(self, response):
 		self.trace()
+		try:
+			self.idle_lock.release()
+		except Exception, e:
+			print ""
 		self.change = False
 		self.tracking = False
 		if response.turn > 0:
@@ -141,43 +145,40 @@ class Decisions:
 		else:
 			self.defeat()
 
-
 		self.change = True
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.5, 3)
+		faces = self.face_cascade.detectMultiScale(gray, 1.4, 4)
 		return faces
 
 	def head_view(self, img):
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
-		faces = self.face_detect()
-		Fpos = self.NG.pl[self.cp].pos
-
 		# goes through all faces in view checking the location of the current players face face
-		for (x, y, w, h) in faces:
-
-			# gets coordinates based on centre of the face found
-			x += w / 2
-			y += h / 2
-
-			# if face is within 5 degrees of old location lets
-
-			if (Fpos[1] - 110*self.unitX) < x < (Fpos[1] + 110*self.unitX):
-				if x > 479:
-					Fpos[1] = self.HX + x * self.unitX
-				else:
-					Fpos[1] = self.HX - x * self.unitX
-
-			if (Fpos[0] - 110*self.unitY) < y < (Fpos[0] + 110*self.unitY):
-				if y > 639:
-					Fpos[0] = self.HY + y*self.unitY
-				else:
-					Fpos[0] = self.HY - y * self.unitY
-
-		self.NG.pl[self.cp].pos = Fpos
-
 		if self.tracking:
+			faces = self.face_detect()
+			Fpos = self.NG.pl[self.cp].pos
+			for (x, y, w, h) in faces:
+				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+				# gets coordinates based on centre of the face found
+				x += w / 2
+				y += h / 2
+
+				# if face is within 5 degrees of old location lets
+
+				if (Fpos[1] - self.tol*self.unitX) < x < (Fpos[1] + self.tol*self.unitX):
+					if x > 639:
+						Fpos[1] = self.HX - ((x-639)*self.unitX)
+					else:
+						Fpos[1] = self.HX + ((639-x)*self.unitX)
+
+				if (Fpos[0] - self.tol*self.unitY) < y < (Fpos[0] + self.tol*self.unitY):
+					if y > 479:
+						Fpos[0] = self.HY + ((y-479)*self.unitY)
+					else:
+						Fpos[0] = self.HY - ((479-y)*self.unitY)
+
+			self.NG.pl[self.cp].pos = Fpos
 			self.NM.pp = self.NG.pl[self.cp].pos
 			self.NM.target()
 
@@ -185,7 +186,6 @@ class Decisions:
 		cv2.waitKey(3)
 
 	def trace(self):
-		time.sleep(0.2)
 		self.idle_lock.acquire()
 		self.tracking = True
 		lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
@@ -199,7 +199,6 @@ class Decisions:
 	def look_away(self):
 		self.idle_lock.release()
 		self.tracking = False
-
 		temp = [0]
 		for i in self.NG.pl: # goes through player list picking out the best guesser(s)
 			if i.cg > 0:
@@ -228,7 +227,7 @@ class Decisions:
 						return
 
 			self.NM.idle()
-			bt = uniform(2, 2.5) - self.score  # time before nao looks somewhere else
+			bt = uniform(2.0, 2.5) - self.score  # time before nao looks somewhere else
 			btt = Timer(bt, self.trace)
 			btt.start()
 			time.sleep(bt+0.5)

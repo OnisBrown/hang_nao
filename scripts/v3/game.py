@@ -10,9 +10,9 @@ import os
 class Player:
 	def __init__(self):
 		self.score = 0.7
-		self.id = []
+		self.id = 0
 		self.faces = []
-		self.pos = []
+		self.pos = [20,20]
 		self.cg = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
@@ -34,7 +34,6 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		for i in range(self.pCount):
 			self.pl.append(Player())
 			self.pl[i].id = i + 1
-			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
 	def game_start(self):
 		for r in range(1, 4):
@@ -61,10 +60,10 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				correct = ''
 				turns = 12
 
-				self.gm.turn = turns
-				self.gm.win = 0
-				self.gm.verify = 2
-				self.gp.publish(self.gm)
+				# self.gm.turn = turns
+				# self.gm.win = 0
+				# self.gm.verify = 2
+				# self.gp.publish(self.gm)
 
 
 				#check if the turns are more than zero

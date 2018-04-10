@@ -250,6 +250,7 @@ class Mover:
 
 		pos = [ty, tx]
 		self.move(pos, self.ph)
+		rospy.sleep(0.2)
 
 	def target(self, pos=None):
 		try:
