@@ -1,8 +1,7 @@
 import sys
-import naoqi
-from naoqi import ALProxy
+#import naoqi
 import time
-import almath
+#import almath
 import rospy
 import roslib
 from movement import Mover
@@ -23,7 +22,7 @@ class Decisions:
 		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
 		self.unitX = 0.00083039531
 		self.unitY = 0.00086539239
-		self.tol = 200
+		self.tol = 300
 		self.NM = Mover()
 		self.NG = game.HangMan()
 		self.bridge = cv_bridge.CvBridge()
@@ -79,23 +78,26 @@ class Decisions:
 
 					# if face is within 5 degrees of already acquired skips it
 
-					for i in self.NG.pl:
-						if (i.pos[0] + self.tol*self.unitY) < Fpos[0] < (i.pos[0] - self.tol*self.unitY):
-							if (i.pos[1] + self.tol*self.unitX) < Fpos[1] < (i.pos[1] - self.tol*self.unitX):
+					#for i in self.NG.pl:
+					if found > 0:
+						prevF = self.NG.pl[found-1].pos
+						if (prevF[0] + self.tol*self.unitY) < Fpos[0] < (prevF[0] - self.tol*self.unitY):
+							if (prevF[1] + self.tol*self.unitX) < Fpos[1] < (prevF[1] - self.tol*self.unitX):
+								continue
 
-
-					if new:
-						self.NG.pl[found].pos = Fpos
-						print "new"
-						found += 1
-					else:
-						print "repeat"
+					self.NG.pl[found].pos = Fpos
+					#print "new at " + str(Fpos) + "around " + str(prevF) + "with a tolerance of " + str(self.tol*self.unitX)
+					found += 1
 
 				angle += 100*self.unitX # moves in increments of 4 degrees
 			except KeyboardInterrupt:
 				sys.exit()
 
 		print "acquired " + str(found) + " players"
+		for p in self.NG.pl:
+			print str(p.pos)
+
+		raw_input("whelp")
 
 	def head_update(self, pos):
 		self.HY = pos.actual.positions[0]
@@ -158,6 +160,7 @@ class Decisions:
 		if self.tracking:
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
+			diff = 900000
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found

@@ -1,10 +1,9 @@
 # !/usr/bin/env python2.7
 
 import sys
-import naoqi
-from naoqi import ALProxy
+#import naoqi
 import time
-import almath
+#import almath
 import numpy
 import rospy
 import roslib
@@ -78,6 +77,7 @@ class Mover:
 	# method for returning the robot to a neutral position
 	def body_reset(self):
 		try:
+			self.interval = 0.5
 			self.jt.joint_names = self.LHJ
 			goal = [0.0]
 			self.move(goal, self.phl)
