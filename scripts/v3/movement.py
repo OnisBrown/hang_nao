@@ -36,6 +36,9 @@ class Mover:
 		# -2.0857 is rightmost radian robot can turn it's head
 		# -0.6720 is uppermost radian robot can tilt it's head
 		# 0.5149 is lowermost radian robot can tilt it's head
+		self.limitH = 1.5
+		self.limitV = 0.45
+		self.dist = 0
 		self.headJ = ['HeadPitch', 'HeadYaw']
 		self.LArmJ = ['LElbowRoll', 'LElbowYaw', 'LShoulderPitch', 'LShoulderRoll', 'LWristYaw']
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
@@ -77,7 +80,7 @@ class Mover:
 	# method for returning the robot to a neutral position
 	def body_reset(self):
 		try:
-			self.interval = 0.5
+			self.interval = 5*self.dist
 			self.jt.joint_names = self.LHJ
 			goal = [0.0]
 			self.move(goal, self.phl)
@@ -90,6 +93,7 @@ class Mover:
 			self.jt.joint_names = self.RArmJ
 			goal = [0.3, 1.5, 1.5, -0.2, 0.0]
 			self.move(goal, self.par)
+			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
 			sys.exit()
@@ -103,17 +107,17 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				self.interval = 0.2
+				self.interval = 2
 				sharp = 0.4
 
 			else:
-				self.interval = 0.5
+				self.interval = 5
 				sharp = 0.2
 
 			if py + sharp > 0.5:
 				py = 0.4 - sharp
 
-			i = self.interval
+			i = self.interval*self.dist
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -137,12 +141,12 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				self.interval = 0.2
+				self.interval = 2
 				incline = 0
 				sharp = 0.3
 
 			else:
-				self.interval = 0.3
+				self.interval = 3
 				incline = 0.2
 				sharp = 0.2
 
@@ -154,7 +158,7 @@ class Mover:
 			if 1.4 < px:
 				px = 1.4 - sharp
 
-			i = self.interval
+			i = self.interval*self.dist
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -184,6 +188,7 @@ class Mover:
 	# causes the nao to raise it's arms and clench fists
 	def cheer(self):
 		try:
+			self.interval = 5*self.dist
 			i = self.interval
 			self.jt.joint_names = self.LHJ
 			goal = [1.0]
@@ -220,7 +225,7 @@ class Mover:
 		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.25, 0.4]
 		px = 0
 		py = 0
-		self.interval = 0.2
+		self.interval = 2*self.dist
 
 		px += uniform(-0.2, 0.2)
 		if px < 0:
@@ -254,7 +259,7 @@ class Mover:
 
 	def target(self, pos=None):
 		try:
-			self.interval = 0.2
+			self.interval = 2*self.dist
 
 			if pos is None:
 				pos = self.pp

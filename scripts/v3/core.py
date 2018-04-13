@@ -53,12 +53,10 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
-		self.tol = 50
+		self.tol = 250
 		self.NM.target([0, -1])
-		diff = self.HX
-		while angle < 1 and found + 1 < len(self.NG.pl):
+		while angle < 1 and found < len(self.NG.pl):
 			try:
-				print "length: " + str(len(self.NG.pl))
 				print str(found)
 				self.NM.target([0, angle])
 				faces = self.face_detect()
@@ -71,31 +69,28 @@ class Decisions:
 					y += h / 2
 
 					if x > 639:
-						Fpos[1] = float(Decimal(self.HX) - ((x-639)*self.unitX))
+						Fpos[1] = self.HX - float(((x-639)*self.unitX))
 					else:
-						Fpos[1] = float(Decimal(self.HX) + ((639-x)*self.unitX))
+						Fpos[1] = self.HX + float(((639-x)*self.unitX))
 
 					if y > 479:
-						Fpos[0] = float(Decimal(self.HY) + ((y-479)*self.unitY))
+						Fpos[0] = self.HY + float(((y-479)*self.unitY))
 					else:
-						Fpos[0] = float(Decimal(self.HY) - ((479-y)*self.unitY))
+						Fpos[0] = self.HY - float(((479-y)*self.unitY))
 
 					# if face is within tolerance of already acquired skips it
-					skip = False
-					print "evaluating"
+					print str(self.HX) + " " + str(angle)
 					for i in self.NG.pl:
-						prevF = i.pos
-						if (prevF[0] + float(self.tol*self.unitY)) > Fpos[0] > (prevF[0] - float(self.tol*self.unitY)):
-							if (prevF[1] + float(self.tol*self.unitX)) > Fpos[1] > (prevF[1] - float(self.tol*self.unitX)):
-								skip = True
-
-					if not skip or found == 0:
-						self.NG.pl[found].pos = Fpos
-						print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol * self.unitX)
-						found += 1
+						if (i.pos[1] - float(self.tol * self.unitX)) > x or x > (i.pos[1] + float(self.tol * self.unitX)):
+							if (i.pos[0] - float(self.tol * self.unitY)) > y or y > (i.pos[0] + float(self.tol * self.unitY)):
+								if self.NG.pl[found]
+								self.NG.pl[found].pos = Fpos
+								print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
+								found += 1
+								break
 
 
-				angle += self.unitX # moves in increments of 4 degrees
+				angle += float(100*self.unitX) # moves in increments of 4 degrees
 			except KeyboardInterrupt:
 				sys.exit()
 
@@ -108,6 +103,18 @@ class Decisions:
 	def head_update(self, pos):
 		self.HY = pos.actual.positions[0]
 		self.HX = pos.actual.positions[1]
+
+		if self.HX > pos.desired.positions[1]:
+			hdist = self.HX - pos.desired.positions[1]
+		else:
+			hdist = pos.desired.positions[1] - self.HX
+
+		if self.HY >  pos.desired.positions[0]:
+			vdist = self.HY - pos.desired.positions[0]
+		else:
+			vdist = pos.desired.positions[0] - self.HY
+
+		self.NM.dist = vdist + hdist
 
 	def yes(self):
 		if self.score < 0.8:
@@ -133,10 +140,10 @@ class Decisions:
 	# answer function
 	def answer(self, response):
 		self.trace()
-		self.idle_lock.acquire()
 		self.change = False
 		self.tracking = False
 		if response.turn > 0:
+			self.idle_lock.release()
 			if bool(response.win):
 				self.victory()
 
@@ -156,7 +163,7 @@ class Decisions:
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.4, 4)
+		faces = self.face_cascade.detectMultiScale(gray, 1.1, 3)
 		return faces
 
 	def head_view(self, img):
