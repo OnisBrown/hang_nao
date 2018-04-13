@@ -35,8 +35,8 @@ class Decisions:
 		self.change = True
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
+		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.HY = 0.0
 		self.HX = 0.0
 		self.NM.body_reset()
@@ -61,9 +61,9 @@ class Decisions:
 				self.NM.target([0, angle])
 				faces = self.face_detect()
 				for (x, y, w, h) in faces:
+					Fpos = self.NG.pl[found].pos
 					cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 					new = True
-					Fpos = self.NG.pl[found].pos
 					# gets coordinates based on centre of the face found
 					x += w / 2
 					y += h / 2
@@ -81,13 +81,13 @@ class Decisions:
 					# if face is within tolerance of already acquired skips it
 					print str(self.HX) + " " + str(angle)
 					for i in self.NG.pl:
-						if (i.pos[1] - float(self.tol * self.unitX)) > x or x > (i.pos[1] + float(self.tol * self.unitX)):
+						if (i.pos[1] - float(self.tol * self.unitX)) >  or x > (i.pos[1] + float(self.tol * self.unitX)):
 							if (i.pos[0] - float(self.tol * self.unitY)) > y or y > (i.pos[0] + float(self.tol * self.unitY)):
-								if self.NG.pl[found]
-								self.NG.pl[found].pos = Fpos
-								print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
-								found += 1
-								break
+								if self.NG.pl[found] == [2,2]:
+									self.NG.pl[found].pos = Fpos
+									print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
+									found += 1
+									break
 
 
 				angle += float(100*self.unitX) # moves in increments of 4 degrees
@@ -115,6 +115,9 @@ class Decisions:
 			vdist = pos.desired.positions[0] - self.HY
 
 		self.NM.dist = vdist + hdist
+		print str(self.NM.dist)
+		raw_input()
+	#	print str(pos.desired.positions[1])
 
 	def yes(self):
 		if self.score < 0.8:

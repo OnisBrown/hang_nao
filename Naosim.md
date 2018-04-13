@@ -69,10 +69,12 @@ RUN apt-get install -y ros-indigo-humanoid-msgs
 RUN apt-get install -y ros-indigo-humanoid-nav-msgs
 RUN apt-get install -y ros-indigo-camera-info-manager
 RUN apt-get install -y ros-indigo-camera-info-manager-py
+sudo apt-get install ros-indigo-nao-meshes
 RUN apt-get -y update
 
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins.git
 git clone https://github.com/pal-robotics/pal_msgs.git
 git clone https://github.com/pal-robotics/pal_gazebo_plugins.git
 catkin_make
+source devel/setup.bash
 

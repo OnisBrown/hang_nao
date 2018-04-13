@@ -259,8 +259,7 @@ class Mover:
 
 	def target(self, pos=None):
 		try:
-			self.interval = 2*self.dist
-
+			self.interval = 5*self.dist
 			if pos is None:
 				pos = self.pp
 
