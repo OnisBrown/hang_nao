@@ -13,6 +13,7 @@ from sensor_msgs.msg import Image
 from control_msgs.msg import JointTrajectoryControllerState
 from threading import Timer, Thread, Lock
 from random import uniform, randint
+from decimal import *
 import numpy
 
 class Decisions:
@@ -20,9 +21,9 @@ class Decisions:
 		# 1280x960 resolution
 		# 60.9d ~ 1.062906r HFOV | 47.6d ~ 0.8307767r VFOV
 		# 0.00083039531r per horizontal pixel | 0.00086539239 per vertical pixel
-		self.unitX = 0.00083039531
-		self.unitY = 0.00086539239
-		self.tol = 300
+		self.unitX = Decimal(0.00083039531)
+		self.unitY = Decimal(0.00086539239)
+		self.tol = 0  # tolerance of distance from original position
 		self.NM = Mover()
 		self.NG = game.HangMan()
 		self.bridge = cv_bridge.CvBridge()
@@ -52,14 +53,17 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
+		self.tol = 50
 		self.NM.target([0, -1])
-		print str(len(self.NG.pl))
-		while angle < 1 and found < len(self.NG.pl):
+		diff = self.HX
+		while angle < 1 and found + 1 < len(self.NG.pl):
 			try:
+				print "length: " + str(len(self.NG.pl))
 				print str(found)
 				self.NM.target([0, angle])
 				faces = self.face_detect()
 				for (x, y, w, h) in faces:
+					cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 					new = True
 					Fpos = self.NG.pl[found].pos
 					# gets coordinates based on centre of the face found
@@ -67,29 +71,31 @@ class Decisions:
 					y += h / 2
 
 					if x > 639:
-						Fpos[1] = self.HX - ((x-639)*self.unitX)
+						Fpos[1] = float(Decimal(self.HX) - ((x-639)*self.unitX))
 					else:
-						Fpos[1] = self.HX + ((639-x)*self.unitX)
+						Fpos[1] = float(Decimal(self.HX) + ((639-x)*self.unitX))
 
 					if y > 479:
-						Fpos[0] = 0 + ((y-479)*self.unitY)
+						Fpos[0] = float(Decimal(self.HY) + ((y-479)*self.unitY))
 					else:
-						Fpos[0] = 0 - ((479-y)*self.unitY)
+						Fpos[0] = float(Decimal(self.HY) - ((479-y)*self.unitY))
 
-					# if face is within 5 degrees of already acquired skips it
+					# if face is within tolerance of already acquired skips it
+					skip = False
+					print "evaluating"
+					for i in self.NG.pl:
+						prevF = i.pos
+						if (prevF[0] + float(self.tol*self.unitY)) > Fpos[0] > (prevF[0] - float(self.tol*self.unitY)):
+							if (prevF[1] + float(self.tol*self.unitX)) > Fpos[1] > (prevF[1] - float(self.tol*self.unitX)):
+								skip = True
 
-					#for i in self.NG.pl:
-					if found > 0:
-						prevF = self.NG.pl[found-1].pos
-						if (prevF[0] + self.tol*self.unitY) < Fpos[0] < (prevF[0] - self.tol*self.unitY):
-							if (prevF[1] + self.tol*self.unitX) < Fpos[1] < (prevF[1] - self.tol*self.unitX):
-								continue
+					if not skip or found == 0:
+						self.NG.pl[found].pos = Fpos
+						print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol * self.unitX)
+						found += 1
 
-					self.NG.pl[found].pos = Fpos
-					#print "new at " + str(Fpos) + "around " + str(prevF) + "with a tolerance of " + str(self.tol*self.unitX)
-					found += 1
 
-				angle += 100*self.unitX # moves in increments of 4 degrees
+				angle += self.unitX # moves in increments of 4 degrees
 			except KeyboardInterrupt:
 				sys.exit()
 
@@ -123,12 +129,11 @@ class Decisions:
 		self.NM.head_shake(0)
 		self.NM.head_shake(0)
 
+
+	# answer function
 	def answer(self, response):
 		self.trace()
-		try:
-			self.idle_lock.release()
-		except Exception, e:
-			print ""
+		self.idle_lock.acquire()
 		self.change = False
 		self.tracking = False
 		if response.turn > 0:
@@ -158,28 +163,29 @@ class Decisions:
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		# goes through all faces in view checking the location of the current players face face
 		if self.tracking:
+			self.tol = 100 # set tolerence for
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
-			diff = 900000
+			diff = 0
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
 				x += w / 2
 				y += h / 2
 
-				# if face is within 5 degrees of old location lets
+				# if face is within distance of old one of old location lets
 
-				if (Fpos[1] - self.tol*self.unitX) < x < (Fpos[1] + self.tol*self.unitX):
+				if (Fpos[1] - float(self.tol*self.unitX)) < x < (Fpos[1] + float(self.tol*self.unitX)):
 					if x > 639:
-						Fpos[1] = self.HX - ((x-639)*self.unitX)
+						Fpos[1] = float(Decimal(self.HX) - ((x-639)*self.unitX))
 					else:
-						Fpos[1] = self.HX + ((639-x)*self.unitX)
+						Fpos[1] = float(Decimal(self.HX) + ((639-x)*self.unitX))
 
-				if (Fpos[0] - self.tol*self.unitY) < y < (Fpos[0] + self.tol*self.unitY):
+				if (Fpos[0] - float(self.tol*self.unitY)) < y < (Fpos[0] + float(self.tol*self.unitY)):
 					if y > 479:
-						Fpos[0] = self.HY + ((y-479)*self.unitY)
+						Fpos[0] = float(Decimal(self.HY) + ((y-479)*self.unitY))
 					else:
-						Fpos[0] = self.HY - ((479-y)*self.unitY)
+						Fpos[0] = float(Decimal(self.HY) - ((479-y)*self.unitY))
 
 			self.NG.pl[self.cp].pos = Fpos
 			self.NM.pp = self.NG.pl[self.cp].pos

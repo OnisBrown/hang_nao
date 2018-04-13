@@ -11,8 +11,7 @@ class Player:
 	def __init__(self):
 		self.score = 0.7
 		self.id = 0
-		self.faces = []
-		self.pos = [20,20]
+		self.pos = [20, 20]
 		self.cg = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
@@ -34,6 +33,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		for i in range(self.pCount):
 			self.pl.append(Player())
 			self.pl[i].id = i + 1
+
+		print str(len(self.pl)) + " players"
 
 	def game_start(self):
 		for r in range(1, 4):
