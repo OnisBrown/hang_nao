@@ -16,7 +16,7 @@ class Player:
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
-		lh = open("hard.txt", "r")
+		lh = open("wordlist.txt", "r")
 		ah = lh.read()
 		self.sh = ah.split()
 		self.pl = list()
