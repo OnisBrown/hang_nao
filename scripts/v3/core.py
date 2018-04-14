@@ -35,7 +35,6 @@ class Decisions:
 		self.change = True
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
 		self.HY = 0.0
 		self.HX = 0.0
@@ -63,7 +62,6 @@ class Decisions:
 				for (x, y, w, h) in faces:
 					Fpos = self.NG.pl[found].pos
 					cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-					new = True
 					# gets coordinates based on centre of the face found
 					x += w / 2
 					y += h / 2
@@ -81,17 +79,21 @@ class Decisions:
 					# if face is within tolerance of already acquired skips it
 					print str(self.HX) + " " + str(angle)
 					for i in self.NG.pl:
-						if (i.pos[1] - float(self.tol * self.unitX)) >  or x > (i.pos[1] + float(self.tol * self.unitX)):
-							if (i.pos[0] - float(self.tol * self.unitY)) > y or y > (i.pos[0] + float(self.tol * self.unitY)):
-								if self.NG.pl[found] == [2,2]:
-									self.NG.pl[found].pos = Fpos
-									print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
-									found += 1
-									break
-
+						new = False
+						if (i.pos[1] - float(self.tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(self.tol * self.unitX)):
+							new = True
+						# elif (i.pos[0] - float(self.tol * self.unitY)) > Fpos[0] or Fpos[0] > (i.pos[0] + float(self.tol * self.unitY)):
+						# 	new = True
+						if new:
+							self.NG.pl[found].pos = Fpos
+							print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
+							found += 1
+							break
 
 				angle += float(100*self.unitX) # moves in increments of 4 degrees
 			except KeyboardInterrupt:
+				self.NM.body_reset()
+				self.look([0, 0])
 				sys.exit()
 
 		print "acquired " + str(found) + " players"
@@ -99,70 +101,6 @@ class Decisions:
 			print str(p.pos)
 
 		raw_input("whelp")
-
-	def head_update(self, pos):
-		self.HY = pos.actual.positions[0]
-		self.HX = pos.actual.positions[1]
-
-		if self.HX > pos.desired.positions[1]:
-			hdist = self.HX - pos.desired.positions[1]
-		else:
-			hdist = pos.desired.positions[1] - self.HX
-
-		if self.HY >  pos.desired.positions[0]:
-			vdist = self.HY - pos.desired.positions[0]
-		else:
-			vdist = pos.desired.positions[0] - self.HY
-
-		self.NM.dist = vdist + hdist
-		print str(self.NM.dist)
-		raw_input()
-	#	print str(pos.desired.positions[1])
-
-	def yes(self):
-		if self.score < 0.8:
-			self.NM.head_nod(self.score)
-		else:
-			self.NM.head_nod(self.score)
-			self.NM.cheer()
-			self.NM.body_reset()
-
-	def no(self):
-		self.NM.head_shake(self.score)
-
-	def victory(self):
-		self.NM.cheer()
-		self.NM.cheer()
-		self.NM.body_reset()
-
-	def defeat(self):
-		self.NM.head_shake(0)
-		self.NM.head_shake(0)
-
-
-	# answer function
-	def answer(self, response):
-		self.trace()
-		self.change = False
-		self.tracking = False
-		if response.turn > 0:
-			self.idle_lock.release()
-			if bool(response.win):
-				self.victory()
-
-			else:
-				if response.verify == 1:
-					self.yes()
-					return
-
-				if response.verify == 0:
-					self.no()
-					return
-
-		else:
-			self.defeat()
-
-		self.change = True
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
@@ -176,7 +114,6 @@ class Decisions:
 			self.tol = 100 # set tolerence for
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
-			diff = 0
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
@@ -213,23 +150,27 @@ class Decisions:
 
 
 	def look(self, pos):
+		self.idle_lock.acquire()
 		self.NM.target(pos)
 
 	def look_away(self):
 		self.idle_lock.release()
 		self.tracking = False
 		temp = [0]
-		for i in self.NG.pl: # goes through player list picking out the best guesser(s)
-			if i.cg > 0:
-				if i.cg == temp[0]:
-					temp.append(i.pos)
-				if i.cg > temp[0]:
-					temp = temp[:1]
-					temp[0] = i.pos
 
 		if self.change:
 			if self.bgp:
 				self.bgp = False
+
+				for i in self.NG.pl:  # goes through player list picking out the best guesser(s)
+					if i.cg > 0:
+						if i.cg == temp[0]:
+							temp.append(i.pos)
+
+						elif i.cg > temp[0]:
+							temp = temp[:1]
+							temp[0] = i.pos
+
 				if temp[0] != 0: # if the temp list is unchanged then the
 					if len(temp) == 1:
 						bestp = temp[0]
@@ -263,6 +204,53 @@ class Decisions:
 		self.NM.pp = player.pos
 		self.score = player.score
 		self.trace()
+
+	def yes(self):
+		if self.score < 0.8:
+			self.NM.head_nod(self.score)
+		else:
+			self.NM.head_nod(self.score)
+			self.NM.cheer()
+			self.NM.body_reset()
+
+	def no(self):
+		self.NM.head_shake(self.score)
+
+	def victory(self):
+		self.NM.cheer()
+		self.NM.cheer()
+		self.NM.body_reset()
+		self.look([0, 0])
+
+	def defeat(self):
+		self.NM.head_shake(0)
+		self.NM.head_shake(0)
+		self.look([0, 0])
+
+
+	# answer function
+	def answer(self, response):
+		self.trace()
+		self.change = False
+		self.tracking = False
+		if response.turn > 0:
+			self.idle_lock.release()
+			if bool(response.win):
+				self.victory()
+
+			else:
+				if response.verify == 1:
+					self.yes()
+					return
+
+				elif response.verify == 0:
+					self.no()
+					return
+
+		else:
+			self.defeat()
+
+		self.change = True
 
 def my_hook():
 	print "shutting down"

@@ -4,7 +4,7 @@ import sys
 #import naoqi
 import time
 #import almath
-import numpy
+import math
 import rospy
 import roslib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -22,7 +22,7 @@ class Mover:
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=1)
 
 		# subscribers for robot sensors
-		#rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_pos)
+		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
 		self.r = rospy.Rate(10)
 
 		# message objects and default message intervals
@@ -38,7 +38,9 @@ class Mover:
 		# 0.5149 is lowermost radian robot can tilt it's head
 		self.limitH = 1.5
 		self.limitV = 0.45
-		self.dist = 0
+		self.HY = 0.0
+		self.HX = 0.0
+		self.speed = 0.4 # global move speed for head joints, other joints are specified
 		self.headJ = ['HeadPitch', 'HeadYaw']
 		self.LArmJ = ['LElbowRoll', 'LElbowYaw', 'LShoulderPitch', 'LShoulderRoll', 'LWristYaw']
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
@@ -47,6 +49,16 @@ class Mover:
 		self.pp = [0, 0]
 		self.body_reset()
 		print "Nao mover node ready"
+
+	def head_update(self, pos):
+		self.HY = pos.actual.positions[0]
+		self.HX = pos.actual.positions[1]
+
+	def range(self, goal):
+		a = abs(goal[0] - self.HY)
+		b = abs(goal[1] - self.HX)
+		return math.sqrt(math.pow(a, 2) + math.pow(b, 2))
+
 
 	# publisher method that accepts a publisher object and uses it
 	def pub(self, p):
@@ -62,6 +74,7 @@ class Mover:
 			self.pub(p)
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# method for setting up move messages by setting all movement parameters to null
@@ -75,12 +88,13 @@ class Mover:
 			self.jtp.time_from_start = rospy.Duration()
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# method for returning the robot to a neutral position
 	def body_reset(self):
 		try:
-			self.interval = 5*self.dist
+			self.interval = 0.5
 			self.jt.joint_names = self.LHJ
 			goal = [0.0]
 			self.move(goal, self.phl)
@@ -96,6 +110,7 @@ class Mover:
 			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# method for making the robot nodding it's head
@@ -107,17 +122,17 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				self.interval = 2
 				sharp = 0.4
+				self.interval = self.speed * self.range([sharp, 0])
 
 			else:
-				self.interval = 5
 				sharp = 0.2
+				self.interval = self.speed * self.range([sharp, 0])
 
 			if py + sharp > 0.5:
 				py = 0.4 - sharp
 
-			i = self.interval*self.dist
+			i = self.interval
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -130,6 +145,7 @@ class Mover:
 			self.target()
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# method for making the robot shake it's head
@@ -141,24 +157,24 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				self.interval = 2
 				incline = 0
 				sharp = 0.3
+				self.interval = self.speed * self.range([incline, sharp])
 
 			else:
-				self.interval = 3
 				incline = 0.2
 				sharp = 0.2
+				self.interval = self.speed * self.range([incline, sharp])
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 			if py + incline > 0.5:
 				incline = 0
 			if -1.4 > px:
 				px = -1.4 + sharp
-			if 1.4 < px:
+			elif 1.4 < px:
 				px = 1.4 - sharp
 
-			i = self.interval*self.dist
+			i = self.interval
 			goal = [py, px]
 			self.move(goal, p)
 			rospy.sleep(i)
@@ -183,12 +199,13 @@ class Mover:
 			self.target()
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# causes the nao to raise it's arms and clench fists
 	def cheer(self):
 		try:
-			self.interval = 5*self.dist
+			self.interval = 0.5
 			i = self.interval
 			self.jt.joint_names = self.LHJ
 			goal = [1.0]
@@ -218,6 +235,7 @@ class Mover:
 			self.move(goal, self.par)
 
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
 
 	# causes the nao to look away from players face
@@ -225,7 +243,6 @@ class Mover:
 		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.25, 0.4]
 		px = 0
 		py = 0
-		self.interval = 2*self.dist
 
 		px += uniform(-0.2, 0.2)
 		if px < 0:
@@ -242,42 +259,47 @@ class Mover:
 		ty = self.pp[0] + py
 		tx = self.pp[1] + px
 
-		if ty > 0.5:
-			ty = 0.5
-		if ty < -0.5:
-			ty = -0.5
+		if abs(ty) > self.limitV:
+			if ty > 0:
+				ty = self.limitV
+			else:
+				ty = -self.limitV
 
-		if tx > 1.9:
-			tx = 1.9
-
-		if tx < -1.9:
-			tx = -1.9
+		if abs(tx) > self.limitH:
+			if tx > 0:
+				tx = self.limitH
+			else:
+				tx = -self.limitH
 
 		pos = [ty, tx]
+		self.interval = self.speed * self.range(pos)
 		self.move(pos, self.ph)
 		rospy.sleep(0.2)
 
 	def target(self, pos=None):
 		try:
-			self.interval = 5*self.dist
 			if pos is None:
 				pos = self.pp
 
-			if pos[0] > 0.4:
-				pos[0] = 0.4
+			if abs(pos[0]) > self.limitH:
+				if pos[0] > 0:
+					pos[0] = self.limitV
 
-			if pos[0] < -0.4:
-				pos[0] = -0.4
+				else:
+					pos[0] = -self.limitV
 
-			if pos[1] > 1.5:
-				pos[1] = 1.5
+			if abs(pos[0]) > self.limitV:
+				if pos[1] > 0:
+					pos[1] = self.limitV
 
-			if pos[1] < -1.5:
-				pos[1] = -1.5
+				else:
+					pos[1] = -self.limitV
 
 
 			self.jt.joint_names = self.headJ
+			self.interval = self.speed * self.range(pos)
 			self.move(pos, self.ph)
-			rospy.sleep(0.2)
+			rospy.sleep(self.interval)
 		except KeyboardInterrupt:
+			self.body_reset()
 			sys.exit()
