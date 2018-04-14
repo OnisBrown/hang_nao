@@ -52,7 +52,7 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
-		self.tol = 250
+		self.tol = 400
 		self.NM.target([0, -1])
 		while angle < 1 and found < len(self.NG.pl):
 			try:
@@ -77,20 +77,18 @@ class Decisions:
 						Fpos[0] = self.HY - float(((479-y)*self.unitY))
 
 					# if face is within tolerance of already acquired skips it
-					print str(self.HX) + " " + str(angle)
-					for i in self.NG.pl:
-						new = False
-						if (i.pos[1] - float(self.tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(self.tol * self.unitX)):
-							new = True
-						# elif (i.pos[0] - float(self.tol * self.unitY)) > Fpos[0] or Fpos[0] > (i.pos[0] + float(self.tol * self.unitY)):
-						# 	new = True
-						if new:
-							self.NG.pl[found].pos = Fpos
-							print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
-							found += 1
-							break
+				for i in self.NG.pl:
+					new = False
+					if (i.pos[1] - float(self.tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(self.tol * self.unitX)):
+						new = True
 
-				angle += float(100*self.unitX) # moves in increments of 4 degrees
+					if new:
+						self.NG.pl[found].pos = Fpos
+						print "new at " + str(Fpos) + "with a tolerance of " + str(self.tol*self.unitX)
+						found += 1
+						break
+
+				angle += float(200*self.unitX) # moves in increments of 4 degrees
 			except KeyboardInterrupt:
 				self.NM.body_reset()
 				self.look([0, 0])
@@ -195,7 +193,7 @@ class Decisions:
 			return
 
 	def update_turn(self, newturn):
-		print "new turn"
+		print "next turn"
 		self.NM.body_reset()
 		self.bgp = True
 		self.cp = newturn.pt

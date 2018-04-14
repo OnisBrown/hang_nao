@@ -40,7 +40,7 @@ class Mover:
 		self.limitV = 0.45
 		self.HY = 0.0
 		self.HX = 0.0
-		self.speed = 0.4 # global move speed for head joints, other joints are specified
+		self.speed = 0.5 # global move speed for head joints, other joints are specified
 		self.headJ = ['HeadPitch', 'HeadYaw']
 		self.LArmJ = ['LElbowRoll', 'LElbowYaw', 'LShoulderPitch', 'LShoulderRoll', 'LWristYaw']
 		self.RArmJ = ['RElbowRoll', 'RElbowYaw', 'RShoulderPitch', 'RShoulderRoll', 'RWristYaw']
@@ -274,7 +274,7 @@ class Mover:
 		pos = [ty, tx]
 		self.interval = self.speed * self.range(pos)
 		self.move(pos, self.ph)
-		rospy.sleep(0.2)
+		time.sleep(self.interval)
 
 	def target(self, pos=None):
 		try:
@@ -299,7 +299,7 @@ class Mover:
 			self.jt.joint_names = self.headJ
 			self.interval = self.speed * self.range(pos)
 			self.move(pos, self.ph)
-			rospy.sleep(self.interval)
+			time.sleep(self.interval)
 		except KeyboardInterrupt:
 			self.body_reset()
 			sys.exit()
