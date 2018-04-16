@@ -52,7 +52,7 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
-		self.tol = 250
+		self.tol = 500
 		self.NM.target([0, -1])
 		while angle < 1 and found < len(self.NG.pl):
 			try:
