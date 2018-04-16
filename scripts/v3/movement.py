@@ -159,12 +159,12 @@ class Mover:
 			if score >= 0.5:
 				incline = 0
 				sharp = 0.3
-				self.interval = self.speed * self.range([incline, sharp])
+				self.interval = 0.5
 
 			else:
 				incline = 0.2
 				sharp = 0.2
-				self.interval = self.speed * self.range([incline, sharp])
+				self.interval = 0.5
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 			if py + incline > 0.5:
