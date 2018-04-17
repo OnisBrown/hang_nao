@@ -55,7 +55,6 @@ class Decisions:
 		time.sleep(3)
 		while angle < 1 and found < len(self.NG.pl):
 			try:
-				print str(found)
 				self.NM.target([0, angle])
 				faces = self.face_detect()
 				for (x, y, w, h) in faces:
@@ -73,18 +72,21 @@ class Decisions:
 					Fpos[0] = self.NM.HY + diffY
 
 					# if face is within tolerance of already acquired skips it
-					for i in self.NG.pl:
-						new = False
-						if (i.pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(tol * self.unitX)):
-							new = True
+					if found == 0:
+						self.NG.pl[found].pos = Fpos
+						print "diff X: " + str(self.NM.HX) + " diff Y: " + str(self.NM.HY)
+						print "X: " + str(diffX) + " Y: " + str(diffY)
+						print "new at " + str(Fpos) + "with a tolerance of " + str(tol * self.unitX)
+						found += 1
+						break
 
-						if new:
-							self.NG.pl[found].pos = Fpos
-							print "X: " + str(self.NM.HX) + "Y: " + str(self.NM.HY)
-							print "X: " + str(x) + "Y: " + str(y)
-							print "new at " + str(Fpos) + "with a tolerance of " + str(tol*self.unitX)
-							found += 1
-							break
+					if (self.NG.pl[found-1].pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (self.NG.pl[found-1].pos[1] + float(tol * self.unitX)):
+						self.NG.pl[found].pos = Fpos
+						print "diff X: " + str(self.NM.HX) + " diff Y: " + str(self.NM.HY)
+						print "X: " + str(diffX) + " Y: " + str(diffY)
+						print "new at " + str(Fpos) + "with a tolerance of " + str(tol * self.unitX)
+						found += 1
+						break
 
 				angle += float(200*self.unitX) # moves in increments of 4 degrees
 			except KeyboardInterrupt:
@@ -100,14 +102,14 @@ class Decisions:
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.1, 3)
+		faces = self.face_cascade.detectMultiScale(gray, 1.1, 5)
 		return faces
 
 	def head_view(self, img):
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		# goes through all faces in view checking the location of the current players face face
 		if self.tracking:
-			tol = 100 # set tolerence for
+			tol = 200 # set tolerence for
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
