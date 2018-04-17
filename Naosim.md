@@ -49,28 +49,28 @@ points:
 #installation
 
 # Extra packages
-RUN apt-get install -y ros-indigo-moveit-full
-RUN apt-get install -y ros-indigo-ompl
-RUN apt-get install -y ros-indigo-control-toolbox
-RUN apt-get install -y ros-indigo-teleop-twist-keyboard
-RUN apt-get -y update
+sudo apt-get install -y ros-indigo-moveit-full
+sudo apt-get install -y ros-indigo-ompl
+sudo apt-get install -y ros-indigo-control-toolbox
+sudo apt-get install -y ros-indigo-teleop-twist-keyboard
+sudo apt-get -y update
 
 # Nao packages
-RUN apt-get install -y ros-indigo-nao-dcm-bringup
-RUN apt-get install -y ros-indigo-naoqi-dcm-driver
-RUN apt-get install -y ros-indigo-nao-robot
-RUN apt-get install -y ros-indigo-nao-extras
-RUN apt-get install -y ros-indigo-nao-gazebo-plugin
-RUN apt-get install -y ros-indigo-driver-base
-RUN apt-get install -y ros-indigo-move-base-msgs
-RUN apt-get install -y ros-indigo-octomap
-RUN apt-get install -y ros-indigo-octomap-msgs
-RUN apt-get install -y ros-indigo-humanoid-msgs
-RUN apt-get install -y ros-indigo-humanoid-nav-msgs
-RUN apt-get install -y ros-indigo-camera-info-manager
-RUN apt-get install -y ros-indigo-camera-info-manager-py
+sudo apt-get install -y ros-indigo-nao-dcm-bringup
+sudo apt-get install -y ros-indigo-naoqi-dcm-driver
+sudo apt-get install -y ros-indigo-nao-robot
+sudo apt-get install -y ros-indigo-nao-extras
+sudo apt-get install -y ros-indigo-nao-gazebo-plugin
+sudo apt-get install -y ros-indigo-driver-base
+sudo apt-get install -y ros-indigo-move-base-msgs
+sudo apt-get install -y ros-indigo-octomap
+sudo apt-get install -y ros-indigo-octomap-msgs
+sudo apt-get install -y ros-indigo-humanoid-msgs
+sudo apt-get install -y ros-indigo-humanoid-nav-msgs
+sudo apt-get install -y ros-indigo-camera-info-manager
+sudo apt-get install -y ros-indigo-camera-info-manager-py
 sudo apt-get install ros-indigo-nao-meshes
-RUN apt-get -y update
+sudo apt-get -y update
 
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins.git
 git clone https://github.com/pal-robotics/pal_msgs.git
