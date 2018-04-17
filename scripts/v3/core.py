@@ -35,47 +35,24 @@ class Decisions:
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
-		self.HY = 0.0
-		self.HX = 0.0
 		self.NM.body_reset()
-		mode = raw_input("demo mode(1) or hangman game(2)")
-		if mode == 1:
-			self.demo()
-		elif mode == 2:
-			self.idle_lock = Lock()
-			pan_start = Thread(target=self.pan)
-			pan_start.start()
-			print "Panning for players"
-			pan_start.join()
-			# initialise game subscribers and start the game
-			rospy.Subscriber('/game/GameState', GameState, self.answer)
-			rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
-			self.NG.game_start()
-		else:
-			print "Goodbye"
-			sys.exit()
+		self.idle_lock = Lock()
+		pan_start = Thread(target=self.pan)
+		pan_start.start()
+		print "Panning for players"
+		pan_start.join()
+		# initialise game subscribers and start the game
+		rospy.Subscriber('/game/GameState', GameState, self.answer)
+		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
+		self.NG.game_start()
 
-	def demo(self):
-		try:
-			move = raw_input("choose a movement: \n 1: nod \n 2: shake \n 3: cheer \n 4:look")
-			if move == 1:
-				self.yes()
-			elif move == 2:
-				self.no()
-			elif move == 3:
-				self.victory()
-
-
-		except KeyboardInterrupt:
-			self.NM.body_reset()
-			self.look([0, 0])
-			sys.exit()
 
 	def pan(self):
 		angle = -1
 		found = 0
-		tol = 500
+		tol = 400
 		self.NM.target([0, -1])
+		time.sleep(3)
 		while angle < 1 and found < len(self.NG.pl):
 			try:
 				print str(found)
@@ -88,27 +65,27 @@ class Decisions:
 					x += w / 2
 					y += h / 2
 
-					if x > 639:
-						Fpos[1] = self.HX - float(((x-639)*self.unitX))
-					else:
-						Fpos[1] = self.HX + float(((639-x)*self.unitX))
+					diffX = float(((639-x)*self.unitX))
+					diffY = float(((479-y)*self.unitY))
 
-					if y > 479:
-						Fpos[0] = self.HY + float(((y-479)*self.unitY))
-					else:
-						Fpos[0] = self.HY - float(((479-y)*self.unitY))
+					Fpos[1] = self.NM.HX + diffX
+
+					Fpos[0] = self.NM.HY + diffY
 
 					# if face is within tolerance of already acquired skips it
-				for i in self.NG.pl:
-					new = False
-					if (i.pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(tol * self.unitX)):
-						new = True
+					for i in self.NG.pl:
+						new = False
+						if (i.pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (i.pos[1] + float(tol * self.unitX)):
+							new = True
 
-					if new:
-						self.NG.pl[found].pos = Fpos
-						print "new at " + str(Fpos) + "with a tolerance of " + str(tol*self.unitX)
-						found += 1
-						break
+						if new:
+							self.NG.pl[found].pos = Fpos
+							print "X: " + str(self.NM.HX) + "Y: " + str(self.NM.HY)
+							print "X: " + str(x) + "Y: " + str(y)
+							print "new at " + str(Fpos) + "with a tolerance of " + str(tol*self.unitX)
+							found += 1
+							raw_input("pause")
+							break
 
 				angle += float(200*self.unitX) # moves in increments of 4 degrees
 			except KeyboardInterrupt:
@@ -141,15 +118,12 @@ class Decisions:
 				x += w / 2
 				y += h / 2
 
-				if x > 639:
-					temp[1] = float(Decimal(self.HX) - ((x - 639) * self.unitX))
-				else:
-					temp[1] = float(Decimal(self.HX) + ((639 - x) * self.unitX))
+				diffX = float(((639 - x) * self.unitX))
+				diffY = float(((479 - y) * self.unitY))
 
-				if y > 479:
-					temp[0] = float(Decimal(self.HY) + ((y - 479) * self.unitY))
-				else:
-					temp[0] = float(Decimal(self.HY) - ((479 - y) * self.unitY))
+				temp[1] = self.NM.HX + diffX
+
+				temp[0] = self.NM.HY + diffY
 
 				# if face is within distance of old one of old location lets
 

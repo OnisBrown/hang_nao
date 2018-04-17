@@ -51,8 +51,9 @@ class Mover:
 		print "Nao mover node ready"
 
 	def head_update(self, pos):
-		self.HY = pos.actual.positions[0]
-		self.HX = pos.actual.positions[1]
+		self.HY = pos.actual.positions[1]
+		self.HX = pos.actual.positions[0]
+
 
 	def range(self, goal):
 		a = abs(goal[0] - self.HY)
@@ -120,14 +121,13 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
+			self.interval = 0.4
 
 			if score >= 0.5:
 				sharp = 0.4
-				self.interval = self.speed * self.range([sharp, 0])
 
 			else:
 				sharp = 0.2
-				self.interval = self.speed * self.range([sharp, 0])
 
 			if py + sharp > 0.5:
 				py = 0.4 - sharp
@@ -155,16 +155,15 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
+			self.interval = 0.3
 
 			if score >= 0.5:
 				incline = 0
 				sharp = 0.3
-				self.interval = 0.5
 
 			else:
 				incline = 0.2
 				sharp = 0.2
-				self.interval = 0.5
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 			if py + incline > 0.5:
