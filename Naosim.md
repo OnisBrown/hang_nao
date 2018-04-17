@@ -1,4 +1,3 @@
-
 #commands
 roslaunch nao_gazebo_plugin nao_gazebo_plugin_H25.launch
 sudo ln /dev/null /dev/raw1394
@@ -49,32 +48,16 @@ points:
 #installation
 
 # Extra packages
-sudo apt-get install -y ros-indigo-moveit-full
-sudo apt-get install -y ros-indigo-ompl
-sudo apt-get install -y ros-indigo-control-toolbox
-sudo apt-get install -y ros-indigo-teleop-twist-keyboard
 sudo apt-get -y update
+sudo apt-get install -y ros-indigo-moveit-full ros-indigo-ompl ros-indigo-control-toolbox ros-indigo-teleop-twist-keyboard
+
 
 # Nao packages
-sudo apt-get install -y ros-indigo-nao-dcm-bringup
-sudo apt-get install -y ros-indigo-naoqi-dcm-driver
-sudo apt-get install -y ros-indigo-nao-robot
-sudo apt-get install -y ros-indigo-nao-extras
-sudo apt-get install -y ros-indigo-nao-gazebo-plugin
-sudo apt-get install -y ros-indigo-driver-base
-sudo apt-get install -y ros-indigo-move-base-msgs
-sudo apt-get install -y ros-indigo-octomap
-sudo apt-get install -y ros-indigo-octomap-msgs
-sudo apt-get install -y ros-indigo-humanoid-msgs
-sudo apt-get install -y ros-indigo-humanoid-nav-msgs
-sudo apt-get install -y ros-indigo-camera-info-manager
-sudo apt-get install -y ros-indigo-camera-info-manager-py
-sudo apt-get install ros-indigo-nao-meshes
 sudo apt-get -y update
+sudo apt-get install -y ros-indigo-nao-dcm-bringup ros-indigo-naoqi-dcm-driver ros-indigo-nao-robot ros-indigo-nao-extras ros-indigo-nao-gazebo-plugin ros-indigo-driver-base ros-indigo-move-base-msgs ros-indigo-octomap ros-indigo-octomap-msgs ros-indigo-humanoid-msgs ros-indigo-humanoid-nav-msgs ros-indigo-camera-info-manager ros-indigo-camera-info-manager-py ros-indigo-nao-meshes
 
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins.git
 git clone https://github.com/pal-robotics/pal_msgs.git
 git clone https://github.com/pal-robotics/pal_gazebo_plugins.git
 catkin_make
 source devel/setup.bash
-

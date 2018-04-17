@@ -84,6 +84,7 @@ class Decisions:
 							print "X: " + str(x) + "Y: " + str(y)
 							print "new at " + str(Fpos) + "with a tolerance of " + str(tol*self.unitX)
 							found += 1
+							raw_input("pause")
 							break
 
 				angle += float(200*self.unitX) # moves in increments of 4 degrees
