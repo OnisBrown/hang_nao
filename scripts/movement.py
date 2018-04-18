@@ -37,7 +37,7 @@ class Mover:
 		# -0.6720 is uppermost radian robot can tilt it's head
 		# 0.5149 is lowermost radian robot can tilt it's head
 		self.limitH = 1.5
-		self.limitV = 0.45
+		self.limitV = 0.3
 		self.HY = 0.0
 		self.HX = 0.0
 		self.speed = 0.5 # global move speed for head joints, other joints are specified
@@ -293,7 +293,6 @@ class Mover:
 
 				else:
 					pos[1] = -self.limitV
-
 
 			self.jt.joint_names = self.headJ
 			self.interval = self.speed * self.range(pos)

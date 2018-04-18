@@ -11,7 +11,7 @@ class Player:
 	def __init__(self):
 		self.score = 0.7
 		self.id = 0
-		self.pos = [20, 20]
+		self.pos = [0, 0]
 		self.cg = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
@@ -150,7 +150,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					time.sleep(1.5)
+					rospy.sleep(2)
 					os.system('clear')
 
 					if self.cp >= self.pCount - 1:
