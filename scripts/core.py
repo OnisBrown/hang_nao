@@ -113,24 +113,21 @@ class Decisions:
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
+			diffX = list()
+			diffY = list()
+
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
 				x += w / 2
 				y += h / 2
 
-				diffX = float(((639 - x) * self.unitX))
-				diffY = float(((479 - y) * self.unitY))
+				diffX.append(float(((639 - x) * self.unitX)))
+				diffY.append(float(((479 - y) * self.unitY)))
 
-				temp[1] = self.NM.HX + diffX
-
-				temp[0] = self.NM.HY + diffY
-
-				# if face is within distance of old one of old location lets
-
-				if (temp[1] - float(tol*self.unitX)) < Fpos[1] < (temp[1] + float(tol*self.unitX)):
-					if (temp[0] - float(tol*self.unitY)) < Fpos[0] < (temp[0] + float(tol*self.unitY)):
-						Fpos = temp
+			# finds the closest face to the original position
+			Fpos[1] = self.NM.HX + min(diffX, key=abs)
+			Fpos[0] = self.NM.HY + min(diffY, key=abs)
 
 			self.NG.pl[self.cp].pos = Fpos
 			self.NM.pp = self.NG.pl[self.cp].pos
@@ -232,7 +229,6 @@ class Decisions:
 		self.change = False
 		self.tracking = False
 		if response.turn > 0:
-			self.idle_lock.release()
 			if bool(response.win):
 				self.victory()
 
