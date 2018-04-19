@@ -121,7 +121,7 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
-			self.interval = 0.3
+			self.interval = 0.5
 
 			if score >= 0.5:
 				sharp = 0.4
@@ -155,7 +155,7 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
-			self.interval = 0.3
+			self.interval = 0.5
 
 			if score >= 0.5:
 				incline = 0

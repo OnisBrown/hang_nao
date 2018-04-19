@@ -44,6 +44,7 @@ class Decisions:
 		# initialise game subscribers and start the game
 		self.playing = True
 		idleThread = Thread(target=self.idling)
+		idleThread.setDaemon(True)
 		idleThread.start()
 		rospy.Subscriber('/game/GameState', GameState, self.answer)
 		rospy.Subscriber('/game/NewTurn', NewTurn, self.update_turn)
@@ -104,14 +105,13 @@ class Decisions:
 	def head_view(self, img):
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		# goes through all faces in view checking the location of the current players face face
-		tol = 200 # set tolerence for
+		tol = 400 # set tolerence for
 		faces = self.face_detect()
 		Fpos = self.NG.pl[self.cp].pos
 		temp = [0.0, 0.0]
 		diffX = list()
 		diffY = list()
 		if self.tracking:
-			self.look(Fpos)
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
@@ -128,6 +128,7 @@ class Decisions:
 
 		# finds the closest face to the original position
 			if len(diffX) > 0 and len(diffY) > 0:
+				print "updating player position: " + str(Fpos)
 				Fpos[1] = self.NM.HX + min(diffX, key=abs)
 				Fpos[0] = self.NM.HY + min(diffY, key=abs)
 
@@ -139,20 +140,22 @@ class Decisions:
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.1, 10)
+		faces = self.face_cascade.detectMultiScale(gray, 1.1, 8)
 		return faces
 
 	def idling(self):
-		if self.playing:
+		while self.playing and self.playing is not None:
 			try:
 				if self.change:
 					self.trace()
-					self.look_away()
-
-				self.idling()
+					time.sleep(0.1)
+					if self.change:
+						self.look_away()
 
 			except KeyboardInterrupt:
 				self.shutdown()
+
+		return
 
 	def trace(self):
 		self.tracking = True
@@ -164,6 +167,7 @@ class Decisions:
 
 	def look_away(self):
 		temp = [0]
+		self.tracking = False
 		if self.bgp:
 			self.bgp = False
 
@@ -194,13 +198,13 @@ class Decisions:
 
 	def update_turn(self, newturn):
 		print "next turn"
-
 		self.bgp = True
 		self.cp = newturn.pt
 		self.change = True
 		self.idle = True
 		player = self.NG.pl[self.cp]
 		self.NM.pp = player.pos
+		rospy.sleep(0.5)
 		print str(player.pos)
 		self.score = player.score
 
