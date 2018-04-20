@@ -20,8 +20,8 @@ class Decisions:
 	def __init__(self):
 		# 1280x960 resolution
 		# 60.9d ~ 1.062906r HFOV | 47.6d ~ 0.8307767r VFOV
-		# 0.000830394933r per horizontal pixel | 0.000649044316r per vertical pixel
-		self.unitX = Decimal(0.000830394933)
+		# 0.00083039493317337r per horizontal pixel | 0.000649044316r per vertical pixel
+		self.unitX = Decimal(0.00083039493317337)
 		self.unitY = Decimal(0.000649044316)
 		self.NM = Mover()
 		self.NG = game.HangMan()
@@ -103,20 +103,21 @@ class Decisions:
 
 	def head_view(self, img):
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
-		# goes through all faces in view checking the location of the current players face face
-		tolH = 300  # set tolerence for face displacement
-		tolV = 50
-		faces = self.face_detect()
-		Fpos = self.NG.pl[self.cp].pos
-		temp = [0.0, 0.0]
-		diffX = list()
-		diffY = list()
-		cX = self.NM.HX
-		cY = self.NM.HY
-
+		# goes through all faces in view checking the location of the current players face face if tracking is true
 
 		if self.tracking:
+			tolH = 300  # set tolerance for face displacement
+			tolV = 50
+			faces = self.face_detect()
+			Fpos = self.NG.pl[self.cp].pos
+			temp = [0.0, 0.0]
+			diffX = list()
+			diffY = list()
+			cX = self.NM.HX
+			cY = self.NM.HY
+
 			self.NM.target()  # if a target isn't specified then the mover class uses player position.
+
 			for (x, y, w, h) in faces:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
@@ -140,13 +141,13 @@ class Decisions:
 
 			self.NM.target()  # if a target isn't specified then the mover class uses player position.
 
-
+		# always display image
 		cv2.imshow("rgb", self.image)
 		cv2.waitKey(3)
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.1, 10)
+		faces = self.face_cascade.detectMultiScale(gray, 1.1, 5)
 		return faces
 
 	def idling(self):
@@ -180,7 +181,7 @@ class Decisions:
 			self.bgp = False
 
 			for i in self.NG.pl:  # goes through player list picking out the best guesser(s)
-				if i.cg > 0:
+				if i.cg > 2:
 					if i.cg == temp[0]:
 						temp.append(i.pos)
 
@@ -249,12 +250,10 @@ class Decisions:
 		self.NM.cheer()
 		self.NM.cheer()
 		self.NM.body_reset()
-		self.look([0, 0])
 
 	def defeat(self):
-		self.look([0, 0])
-		self.NM.head_shake(0)
-		self.NM.head_shake(0)
+		self.NM.head_shake()
+		self.NM.head_shake()
 
 
 def my_hook():

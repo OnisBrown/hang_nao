@@ -36,7 +36,7 @@ class Mover:
 		# -2.0857 is rightmost radian robot can turn it's head
 		# -0.6720 is uppermost radian robot can tilt it's head
 		# 0.5149 is lowermost radian robot can tilt it's head
-		self.limitH = 1.5
+		self.limitH = 2
 		self.limitV = 0.4
 		self.HY = 0.0
 		self.HX = 0.0
@@ -123,10 +123,10 @@ class Mover:
 			py = self.pp[0]
 
 			if score >= 0.5:
-				sharp = 0.4
+				sharp = 0.5
 
 			else:
-				sharp = 0.2
+				sharp = 0.3
 
 			if py + sharp > self.limitV:
 				py = self.limitV - sharp
@@ -165,15 +165,14 @@ class Mover:
 				sharp = 0.4
 
 			else:
-				sharp = 0.6
+				sharp = 0.5
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
 
-			if abs(px) > self.limitH:
-				if 0 > px:
-					px = -self.limitH + sharp
-				else:
-					px = self.limitH - sharp
+			if -self.limitH > px:
+				px = -self.limitH + sharp
+			elif self.limitH < px:
+				px = self.limitH - sharp
 
 			# incline head if necessary
 			goal = [py, px]
@@ -224,7 +223,7 @@ class Mover:
 	# causes the nao to raise it's arms and clench fists
 	def cheer(self):
 		try:
-			self.interval = 0.5
+			self.interval = 0.6
 			i = self.interval
 			self.jt.joint_names = self.LHJ
 			goal = [1.0]

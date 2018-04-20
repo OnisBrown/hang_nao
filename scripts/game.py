@@ -61,10 +61,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				correct = ''
 				turns = 12
 
-				self.gm.turn = turns
 				self.gm.win = 0
-				self.gm.verify = 2
-				self.gp.publish(self.gm)
 
 
 				#check if the turns are more than zero
