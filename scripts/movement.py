@@ -119,9 +119,8 @@ class Mover:
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
-			px = self.HX
-			py = self.HY
-			self.interval = 0.3
+			px = self.pp[1]
+			py = self.pp[0]
 
 			if score >= 0.5:
 				sharp = 0.4
@@ -129,20 +128,26 @@ class Mover:
 			else:
 				sharp = 0.2
 
-			if py + sharp > 0.5:
-				py = 0.4 - sharp
+			if py + sharp > self.limitV:
+				py = self.limitV - sharp
 
-			i = self.interval
+			# pitch head to player
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(self.interval)
+
+			# pitch head forwards
 			goal = [py + sharp, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(self.interval)
+
+			# pitch head back to original
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			self.target()
+			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
 			self.body_reset()
@@ -153,49 +158,64 @@ class Mover:
 		try:
 			self.jt.joint_names = self.headJ
 			p = self.ph
-			px = self.HX
-			py = self.HY
-			self.interval = 0.5
+			px = self.pp[1]
+			py = self.pp[0]
 
 			if score >= 0.5:
-				incline = 0
-				sharp = 0.3
+				sharp = 0.4
 
 			else:
-				incline = 0.2
-				sharp = 0.2
+				sharp = 0.6
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
-			if py + incline > 0.5:
-				incline = 0
-			if -1.4 > px:
-				px = -1.4 + sharp
-			elif 1.4 < px:
-				px = 1.4 - sharp
 
-			i = self.interval
-			goal = [py + incline, px]
+			if abs(px) > self.limitH:
+				if 0 > px:
+					px = -self.limitH + sharp
+				else:
+					px = self.limitH - sharp
+
+			# incline head if necessary
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px - sharp]
+			rospy.sleep(self.interval)
+
+			# turn to the right
+			goal = [py, px - sharp]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px]
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px + sharp]
+			rospy.sleep(self.interval)
+
+			# turn to the left
+			goal = [py, px + sharp]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px]
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px - sharp]
+			rospy.sleep(self.interval)
+
+			# turn to the right
+			goal = [py, px - sharp]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px]
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			self.target()
+			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
 			self.body_reset()

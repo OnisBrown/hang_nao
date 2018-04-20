@@ -55,7 +55,7 @@ class Decisions:
 		self.lock.acquire()
 		angle = -1
 		found = 0
-		tol = 400
+		tol = 500
 		self.NM.target([0, -1])
 		time.sleep(1.5)
 		while angle < 1 and found < len(self.NG.pl):
@@ -80,18 +80,14 @@ class Decisions:
 
 					# if face is within tolerance of already acquired skips it
 					if found == 0:
-						print "Updating " + str(self.NG.pl[found].id) + " from " + str(self.NG.pl[found].pos) + " to " + str(Fpos)
-						print "with a tolerance of " + str(tol * self.unitX)
 						self.NG.pl[found].pos = Fpos
 						found += 1
-						rospy.sleep(0.5)
+						rospy.sleep(0.2)
 
 					elif (self.NG.pl[found-1].pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (self.NG.pl[found-1].pos[1] + float(tol * self.unitX)):
-						print "Updating " + str(self.NG.pl[found].id) + " from " + str(self.NG.pl[found].pos) + " to " + str(Fpos)
-						print "with a tolerance of " + str(tol * self.unitX)
 						self.NG.pl[found].pos = Fpos
 						found += 1
-						rospy.sleep(0.5)
+						rospy.sleep(0.2)
 
 				angle += float(50*self.unitX)  # turns 50 units per cycle
 			except KeyboardInterrupt:
@@ -110,7 +106,7 @@ class Decisions:
 	def head_view(self, img):
 		self.image = self.bridge.imgmsg_to_cv2(img, desired_encoding='bgr8')
 		# goes through all faces in view checking the location of the current players face face
-		tolH = 200  # set tolerence for face displacement
+		tolH = 300  # set tolerence for face displacement
 		tolV = 50
 		faces = self.face_detect()
 		Fpos = self.NG.pl[self.cp].pos
@@ -141,7 +137,6 @@ class Decisions:
 			if len(diffX) > 0 and len(diffY) > 0:
 				Fpos[1] = cX + min(diffX, key=abs)
 				Fpos[0] = cY + min(diffY, key=abs)
-				print "Updating " + str(self.NG.pl[self.cp].id) + " from " + str(self.NG.pl[self.cp].pos) + " to " + str(Fpos)
 				self.NG.pl[self.cp].pos = Fpos
 				self.NM.pp = self.NG.pl[self.cp].pos
 
@@ -211,15 +206,16 @@ class Decisions:
 		print "next turn"
 		self.bgp = True
 		self.cp = newturn.pt
-		self.change = True  # re-engage idle thread
 		player = self.NG.pl[self.cp]
 		self.NM.pp = player.pos
 		print str(player.pos)
+		self.change = True  # re-engage idle thread
 		self.score = player.score
 
 	# answer function
 	def answer(self, response):
 		self.change = False  # disengage idle thread
+		rospy.sleep(0.3)
 		self.NM.target()
 		if response.turn > 0:
 			if bool(response.win):
@@ -228,12 +224,10 @@ class Decisions:
 			else:
 				if response.verify == 1:
 					self.yes()
-					#rospy.sleep(1)
 					return
 
 				elif response.verify == 0:
 					self.no()
-					#rospy.sleep(1)
 					return
 
 		else:
