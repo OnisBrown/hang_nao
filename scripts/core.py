@@ -52,11 +52,10 @@ class Decisions:
 		self.NG.game_start()
 
 	def pan(self):
-		self.lock.acquire()
 		angle = -1
 		found = 0
 		tol = 500
-		self.NM.target([0, -1])
+		self.NM.target([0, angle])
 		time.sleep(1.5)
 		while angle < 1 and found < len(self.NG.pl):
 			try:
@@ -89,7 +88,7 @@ class Decisions:
 						found += 1
 						rospy.sleep(0.2)
 
-				angle += float(50*self.unitX)  # turns 50 units per cycle
+				angle += float(100*self.unitX)  # turns 50 units per cycle
 			except KeyboardInterrupt:
 				self.shutdown()
 
@@ -98,7 +97,6 @@ class Decisions:
 			print str(p.pos)
 
 		raw_input("whelp")
-		self.lock.release()
 
 	def shutdown(self):
 		sys.exit()
