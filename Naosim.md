@@ -46,6 +46,7 @@ points:
 
 
 #installation
+export PYTHONPATH=~/naoqi/pynaoqi-python2.7-2.1.2.17-linux64:$PYTHONPATH
 
 # Extra packages
 sudo apt-get -y update

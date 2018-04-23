@@ -20,6 +20,7 @@ class Mover:
 		self.par = rospy.Publisher('/nao_dcm/RightArm_controller/command', JointTrajectory, queue_size=1)
 		self.phl = rospy.Publisher('/nao_dcm/LeftHand_controller/command', JointTrajectory, queue_size=1)
 		self.phr = rospy.Publisher('/nao_dcm/RightHand_controller/command', JointTrajectory, queue_size=1)
+		self.phr = rospy.Publisher('/', JointTrajectory, queue_size=1)
 
 		# subscribers for robot sensors
 		rospy.Subscriber('/nao_dcm/Head_controller/state', JointTrajectoryControllerState, self.head_update)
