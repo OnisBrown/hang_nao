@@ -10,14 +10,13 @@ import os
 class Player:
 	def __init__(self):
 		self.score = 0.7
-		self.id = []
-		self.faces = []
-		self.pos = []
+		self.id = 0
+		self.pos = [0, 0]
 		self.cg = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
-		lh = open("hard.txt", "r")
+		lh = open("wordlist.txt", "r")
 		ah = lh.read()
 		self.sh = ah.split()
 		self.pl = list()
@@ -29,22 +28,17 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.gm = GameState()
 		self.tm = NewTurn()
 
-	def game_start(self):
-		print "\nnew round starting in"
 		self.pCount = int(raw_input("How many players are there? "))
 
 		for i in range(self.pCount):
 			self.pl.append(Player())
 			self.pl[i].id = i + 1
-			self.pl[i].pos = map(float, raw_input('where are you? ').split())
 
+		print str(len(self.pl)) + " players"
+
+	def game_start(self):
 		for r in range(1, 4):
 			try:
-				os.system('clear')
-				print "new round in..."
-				for t in range(5, 0, -1):
-					print str(t) + "... "
-					rospy.sleep(0.5)
 
 				os.system('clear')
 				print "Round " + str(r) + "!"
@@ -59,7 +53,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "Time to play hangman!"
 				print ""
 				print "Start guessing..."
-				rospy.sleep(1.5)
+				rospy.sleep(1.0)
 
 				#creates variables to track guesses
 				guesses = ''
@@ -67,10 +61,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				correct = ''
 				turns = 12
 
-				self.gm.turn = turns
 				self.gm.win = 0
-				self.gm.verify = 2
-				self.gp.publish(self.gm)
 
 
 				#check if the turns are more than zero
@@ -156,7 +147,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					rospy.sleep(1.0)
+					rospy.sleep(2)
 					os.system('clear')
 
 					if self.cp >= self.pCount - 1:

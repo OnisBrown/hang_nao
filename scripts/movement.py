@@ -36,8 +36,8 @@ class Mover:
 		# -2.0857 is rightmost radian robot can turn it's head
 		# -0.6720 is uppermost radian robot can tilt it's head
 		# 0.5149 is lowermost radian robot can tilt it's head
-		self.limitH = 1.5
-		self.limitV = 0.45
+		self.limitH = 2
+		self.limitV = 0.4
 		self.HY = 0.0
 		self.HX = 0.0
 		self.speed = 0.5 # global move speed for head joints, other joints are specified
@@ -103,10 +103,10 @@ class Mover:
 			goal = [0.0]
 			self.move(goal, self.phr)
 			self.jt.joint_names = self.LArmJ
-			goal = [-0.3, -1.5, 1.5, 0.2, 0.0]
+			goal = [-0.3, -1.5, 1.7, 0.2, 0.0]
 			self.move(goal, self.pal)
 			self.jt.joint_names = self.RArmJ
-			goal = [0.3, 1.5, 1.5, -0.2, 0.0]
+			goal = [0.3, 1.5, 1.7, -0.2, 0.0]
 			self.move(goal, self.par)
 			rospy.sleep(self.interval)
 
@@ -121,28 +121,33 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
-			self.interval = 0.4
 
 			if score >= 0.5:
-				sharp = 0.4
+				sharp = 0.5
 
 			else:
-				sharp = 0.2
+				sharp = 0.3
 
-			if py + sharp > 0.5:
-				py = 0.4 - sharp
+			if py + sharp > self.limitV:
+				py = self.limitV - sharp
 
-			i = self.interval
+			# pitch head to player
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(self.interval)
+
+			# pitch head forwards
 			goal = [py + sharp, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(self.interval)
+
+			# pitch head back to original
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			self.target()
+			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
 			self.body_reset()
@@ -155,47 +160,61 @@ class Mover:
 			p = self.ph
 			px = self.pp[1]
 			py = self.pp[0]
-			self.interval = 0.3
 
 			if score >= 0.5:
-				incline = 0
-				sharp = 0.3
+				sharp = 0.4
 
 			else:
-				incline = 0.2
-				sharp = 0.2
+				sharp = 0.5
 
 			# checks to make sure that the nao doesn't exceed it's range of movement
-			if py + incline > 0.5:
-				incline = 0
-			if -1.4 > px:
-				px = -1.4 + sharp
-			elif 1.4 < px:
-				px = 1.4 - sharp
 
-			i = self.interval
+			if -self.limitH > px:
+				px = -self.limitH + sharp
+			elif self.limitH < px:
+				px = self.limitH - sharp
+
+			# incline head if necessary
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px - sharp]
+			rospy.sleep(self.interval)
+
+			# turn to the right
+			goal = [py, px - sharp]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px]
-			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px + sharp]
-			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px]
-			self.move(goal, p)
-			rospy.sleep(i)
-			goal = [py + incline, px - sharp]
-			self.move(goal, p)
-			rospy.sleep(i)
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
 			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
 			self.move(goal, p)
-			rospy.sleep(i)
-			self.target()
+			rospy.sleep(self.interval)
+
+			# turn to the left
+			goal = [py, px + sharp]
+			self.interval = self.speed * self.range(goal)
+			self.move(goal, p)
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
+			self.move(goal, p)
+			rospy.sleep(self.interval)
+
+			# turn to the right
+			goal = [py, px - sharp]
+			self.interval = self.speed * self.range(goal)
+			self.move(goal, p)
+			rospy.sleep(self.interval)
+
+			# turn back to original angle
+			goal = [py, px]
+			self.interval = self.speed * self.range(goal)
+			self.move(goal, p)
+			rospy.sleep(self.interval)
 
 		except KeyboardInterrupt:
 			self.body_reset()
@@ -204,7 +223,7 @@ class Mover:
 	# causes the nao to raise it's arms and clench fists
 	def cheer(self):
 		try:
-			self.interval = 0.5
+			self.interval = 0.6
 			i = self.interval
 			self.jt.joint_names = self.LHJ
 			goal = [1.0]
@@ -239,17 +258,17 @@ class Mover:
 
 	# causes the nao to look away from players face
 	def idle(self):
-		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.25, 0.4]
+		# nao can't look within +- [0.05, 0.2] radians of the players face or look further than +- [0.15, 0.3]
 		px = 0
 		py = 0
 
 		px += uniform(-0.2, 0.2)
 		if px < 0:
-			px -= 0.2
+			px -= 0.1
 		else:
-			px += 0.2
+			px += 0.1
 
-		py += uniform(-0.2, 0.2)
+		py += uniform(-0.1, 0.1)
 		if py < 0:
 			py -= 0.05
 		else:
@@ -293,7 +312,6 @@ class Mover:
 
 				else:
 					pos[1] = -self.limitV
-
 
 			self.jt.joint_names = self.headJ
 			self.interval = self.speed * self.range(pos)
