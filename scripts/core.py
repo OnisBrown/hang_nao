@@ -1,6 +1,7 @@
 import sys
 #import naoqi
 import time
+import datetime
 #import almath
 import rospy
 import roslib
@@ -34,7 +35,7 @@ class Decisions:
 		self.change = True
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
+		rospy.Subscriber('/nao_robot/camera/top/camera/image_raw', Image, self.head_view)
 		self.NM.body_reset()
 		self.lock = Lock()
 		pan_start = Thread(target=self.pan)
@@ -99,6 +100,13 @@ class Decisions:
 		raw_input("whelp")
 
 	def shutdown(self):
+		filename = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ".txt"
+		file = open(filename, "w")
+		for i in self.NG.pl:
+			file.write(str(i.id))
+			file.write(str(i.score))
+
+		file.close()
 		sys.exit()
 
 	def head_view(self, img):
@@ -106,8 +114,8 @@ class Decisions:
 		# goes through all faces in view checking the location of the current players face face if tracking is true
 
 		if self.tracking:
-			tolH = 300  # set tolerance for face displacement
-			tolV = 50
+			tolH = 400  # set tolerance for face displacement
+			tolV = 100
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
@@ -159,7 +167,8 @@ class Decisions:
 					time.sleep(lt)
 					if self.change:
 						self.look_away()
-						bt = uniform(2.0, 2.5) - self.score  # time before nao looks somewhere else
+						time.sleep(0.5)
+						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
 						time.sleep(bt)
 
 			except KeyboardInterrupt:
@@ -223,11 +232,12 @@ class Decisions:
 			else:
 				if response.verify == 1:
 					self.yes()
-					return
 
 				elif response.verify == 0:
 					self.no()
-					return
+
+				rospy.sleep(0.5)
+				return
 
 		else:
 			self.defeat()
@@ -250,10 +260,11 @@ class Decisions:
 		self.NM.cheer()
 		self.NM.cheer()
 		self.NM.body_reset()
+		self.shutdown()
 
 	def defeat(self):
-		self.NM.head_shake()
-		self.NM.head_shake()
+		self.look([0.4, 0.0])
+		self.shutdown()
 
 
 def my_hook():

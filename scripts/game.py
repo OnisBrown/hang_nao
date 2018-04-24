@@ -6,6 +6,7 @@ from random import randint
 from hang_nao.msg import GameState, NewTurn
 import rospy
 import os
+from naoqi import ALProxy
 
 class Player:
 	def __init__(self):
@@ -21,6 +22,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.sh = ah.split()
 		self.pl = list()
 		self.cp = 0
+		IP = "192.168.1.3"
+		self.tts = ALProxy("ALTextToSpeech", IP, 9559)
 
 		#message publishers and message objects
 		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=1)
@@ -59,7 +62,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				guesses = ''
 				misses = ''
 				correct = ''
-				turns = 12
+				turns = 8
+
 
 				self.gm.win = 0
 
@@ -82,6 +86,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 					if failed == 0:
 						print "\nYou won"
+						self.tts.say(word + ", You won")
 						self.gm.win = 1
 						self.gp.publish(self.gm)
 						raw_input('press enter...')
@@ -91,13 +96,14 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 					# ask the user go guess a character
 					print "Player " + str(self.pl[self.cp].id) + ' your turn\n'
-					print "You have ", + turns, ' guesses remaining'
+					self.tts.say("Player " + str(self.pl[self.cp].id) + ', your turn\n')
+					print "You have, " + str(turns) + ' guesses remaining'
 					print "\nIncorrect guesses: " + misses
 					rospy.sleep(0.2)
 					guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 					print "\n"
 					if guess == "!": # if the user inputs an exclamation mark exit the game
-						break
+						sys.exit()
 					# set the players guess to guesses
 					guesses += guess
 
@@ -111,21 +117,24 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 								misses += ' ' + char
 								# print wrong
 								print char + " is wrong"
+								self.tts.say(char + ", is incorrect")
 
 							else:
 								self.pl[self.cp].score -= 0.05
 								self.gm.verify = 0
 								print "You already guessed " + char
-
+								self.tts.say("You already guessed, " + char)
 						else:
 							if char in correct:
 								print "You already guessed " + char
+								self.tts.say("You already guessed, " + char)
 								self.pl[self.cp].score -= 0.05
 							else:
 								self.gm.verify = 1
 								self.pl[self.cp].score += 0.1
 								self.pl[self.cp].cg += 1
 								print char + " is correct"
+								self.tts.say(char + ", is correct")
 
 					if len(guess) > 1:
 						self.gm.verify = 2
@@ -136,16 +145,21 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					if self.pl[self.cp].score > 1:
 						self.pl[self.cp].score = 1
 
+					self.gm.turn = turns
+					self.gp.publish(self.gm)
 					# how many turns are left
-					print "\nYou have", + turns, 'more guesses'
+					print "\nYou have" + str(turns) + ' more guesses'
+					self.tts.say("You have " + str(turns) + ' more guesses')
 
 					# if the turns are equal to zero
 					if turns < 0:
 						print "\nYou Loose"
+						self.tts.say("You lose! The word was," + word)
 						self.gm.win = 0
+						self.gp.publish(self.gm)
 
-					self.gm.turn = turns
-					self.gp.publish(self.gm)
+
+
 
 					rospy.sleep(2)
 					os.system('clear')

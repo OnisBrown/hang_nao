@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a028719-0736-452b-b6a8-c0127c8d4a89" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/Naosim.md" beforeDir="false" afterPath="$PROJECT_DIR$/Naosim.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/game.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/movement.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/movement.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,11 +16,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="movement.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="movement.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/movement.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="23" column="8" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
+            <state relative-caret-position="660">
+              <caret line="65" column="54" lean-forward="true" selection-start-line="65" selection-start-column="54" selection-end-line="65" selection-end-column="54" />
+              <folding>
+                <element signature="e#27#37#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -25,8 +31,8 @@
       <file leaf-file-name="core.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/core.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3720">
-              <caret line="248" column="22" selection-start-line="248" selection-start-column="22" selection-end-line="248" selection-end-column="22" />
+            <state relative-caret-position="132">
+              <caret line="106" column="26" selection-start-line="106" selection-start-column="26" selection-end-line="106" selection-end-column="26" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -34,11 +40,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="game.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2265">
-              <caret line="156" selection-start-line="156" selection-end-line="156" />
+            <state relative-caret-position="521">
+              <caret line="156" column="69" selection-start-line="156" selection-start-column="69" selection-end-line="156" selection-end-column="69" />
+              <folding>
+                <element signature="e#26#36#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,7 +65,6 @@
     <findStrings>
       <find>tp</find>
       <find>self.curr</find>
-      <find>rospy.sleep</find>
       <find>change</find>
       <find>idle</find>
       <find>print</find>
@@ -66,7 +74,16 @@
       <find>self.playing</find>
       <find>sleep</find>
       <find>tol</find>
+      <find>jt</find>
+      <find>ja</find>
+      <find>js.joint_names</find>
+      <find>js</find>
+      <find>rospy.sleep</find>
     </findStrings>
+    <replaceStrings>
+      <replace>ja</replace>
+      <replace>js.name</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -90,17 +107,17 @@
         <option value="$PROJECT_DIR$/scripts/v3/game.py" />
         <option value="$PROJECT_DIR$/scripts/v3/core.py" />
         <option value="$PROJECT_DIR$/scripts/v3/movement.py" />
-        <option value="$PROJECT_DIR$/scripts/game.py" />
-        <option value="$PROJECT_DIR$/scripts/core.py" />
         <option value="$PROJECT_DIR$/scripts/movement.py" />
+        <option value="$PROJECT_DIR$/scripts/core.py" />
+        <option value="$PROJECT_DIR$/scripts/game.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="776" />
-    <option name="y" value="-4" />
-    <option name="width" value="920" />
-    <option name="height" value="1016" />
+  <component name="ProjectFrameBounds" extendedState="4">
+    <option name="x" value="988" />
+    <option name="y" value="24" />
+    <option name="width" value="931" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -140,7 +157,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.language" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -193,8 +210,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="57" y="-4" width="2503" height="1444" extended-state="6" />
-    <editor active="true" />
+    <frame x="988" y="24" width="931" height="1056" extended-state="4" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.3768194" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -216,22 +232,22 @@
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3200409" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.3768194" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="10" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32924336" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3200409" />
+      <window_info anchor="bottom" id="Python Console" order="8" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Terminal" order="9" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Python Console" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32924336" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -243,6 +259,16 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/scripts/game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2265">
+          <caret line="156" selection-start-line="156" selection-end-line="156" />
+          <folding>
+            <element signature="e#26#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/version 2/movement.py" />
     <entry file="file://$PROJECT_DIR$/scripts/version 2/core.py" />
     <entry file="file://$PROJECT_DIR$/scripts/move_naoqi.py" />
@@ -286,34 +312,37 @@
     <entry file="file://$PROJECT_DIR$/scripts/v2/movement.py" />
     <entry file="file://$PROJECT_DIR$/scripts/v2/game.py" />
     <entry file="file://$PROJECT_DIR$/scripts/v2/core.py" />
-    <entry file="file://$PROJECT_DIR$/Template world">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/v3/hard.txt" />
     <entry file="file://$PROJECT_DIR$/scripts/v3/movement.py" />
     <entry file="file://$PROJECT_DIR$/scripts/v3/game.py" />
     <entry file="file://$PROJECT_DIR$/scripts/v3/core.py" />
-    <entry file="file://$PROJECT_DIR$/scripts/game.py">
+    <entry file="file://$PROJECT_DIR$/scripts/movement.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2265">
-          <caret line="156" selection-start-line="156" selection-end-line="156" />
+        <state relative-caret-position="660">
+          <caret line="65" column="54" lean-forward="true" selection-start-line="65" selection-start-column="54" selection-end-line="65" selection-end-column="54" />
+          <folding>
+            <element signature="e#27#37#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/core.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3720">
-          <caret line="248" column="22" selection-start-line="248" selection-start-column="22" selection-end-line="248" selection-end-column="22" />
+        <state relative-caret-position="132">
+          <caret line="106" column="26" selection-start-line="106" selection-start-column="26" selection-end-line="106" selection-end-column="26" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/movement.py">
+    <entry file="file://$PROJECT_DIR$/scripts/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="23" column="8" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
+        <state relative-caret-position="521">
+          <caret line="156" column="69" selection-start-line="156" selection-start-column="69" selection-end-line="156" selection-end-column="69" />
+          <folding>
+            <element signature="e#26#36#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
