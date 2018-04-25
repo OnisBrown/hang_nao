@@ -1,7 +1,6 @@
 import sys
 #import naoqi
 import time
-import datetime
 #import almath
 import rospy
 import roslib
@@ -52,6 +51,10 @@ class Decisions:
 		idleThread.start()
 		self.NG.game_start()
 
+	def __del__(self):
+		del self.NG
+		del self.NM
+
 	def pan(self):
 		angle = -1
 		found = 0
@@ -97,16 +100,11 @@ class Decisions:
 		for p in self.NG.pl:
 			print str(p.pos)
 
-		raw_input("whelp")
+		raw_input("press enter to begin... ")
 
 	def shutdown(self):
-		filename = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ".txt"
-		file = open(filename, "w")
-		for i in self.NG.pl:
-			file.write(str(i.id))
-			file.write(str(i.score))
-
-		file.close()
+		del self.NG
+		del self.NM
 		sys.exit()
 
 	def head_view(self, img):
@@ -163,12 +161,11 @@ class Decisions:
 			try:
 				if self.change:
 					self.trace()
-					lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
+					lt = uniform(1.8, 2.3) + self.score  # maintains gaze for random time based on mutual gaze data
 					time.sleep(lt)
 					if self.change:
 						self.look_away()
-						time.sleep(0.5)
-						bt = uniform(2.5, 3.0) - self.score  # time before nao looks somewhere else
+						bt = uniform(2.0, 2.5) - self.score  # time before nao looks somewhere else
 						time.sleep(bt)
 
 			except KeyboardInterrupt:
@@ -223,7 +220,6 @@ class Decisions:
 	# answer function
 	def answer(self, response):
 		self.change = False  # disengage idle thread
-		rospy.sleep(0.3)
 		self.NM.target()
 		if response.turn > 0:
 			if bool(response.win):
@@ -236,35 +232,29 @@ class Decisions:
 				elif response.verify == 0:
 					self.no()
 
-				rospy.sleep(0.5)
+				time.sleep(1)
 				return
 
 		else:
 			self.defeat()
-
+			return
 
 		self.change = True
 
 	def yes(self):
-		if self.score < 0.8:
-			self.NM.head_nod(self.score)
-		else:
-			self.NM.head_nod(self.score)
-			self.NM.cheer()
-			self.NM.body_reset()
+		self.NM.head_nod(self.score)
 
 	def no(self):
-		self.NM.head_shake(self.score)
+		print "eh"
+		#self.NM.head_shake(self.score)
 
 	def victory(self):
 		self.NM.cheer()
 		self.NM.cheer()
 		self.NM.body_reset()
-		self.shutdown()
 
 	def defeat(self):
 		self.look([0.4, 0.0])
-		self.shutdown()
 
 
 def my_hook():
