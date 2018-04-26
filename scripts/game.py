@@ -6,6 +6,8 @@ from random import randint
 from hang_nao.msg import GameState, NewTurn
 import rospy
 import os
+import datetime
+from naoqi import ALProxy
 
 class Player:
 	def __init__(self):
@@ -21,6 +23,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		self.sh = ah.split()
 		self.pl = list()
 		self.cp = 0
+		IP = "192.168.1.3"
+		self.tts = ALProxy("ALTextToSpeech", IP, 9559)
 
 		#message publishers and message objects
 		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=1)
@@ -37,6 +41,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		print str(len(self.pl)) + " players"
 
 	def game_start(self):
+		best = list()
 		for r in range(1, 4):
 			try:
 
@@ -44,6 +49,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "Round " + str(r) + "!"
 				print "\n__________________________________________\n"
 
+				tempb = 0
 
 				for s in self.pl: #resets players correct guesses
 					s.cg = 0
@@ -59,7 +65,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				guesses = ''
 				misses = ''
 				correct = ''
-				turns = 12
+				turns = 8
+
 
 				self.gm.win = 0
 
@@ -82,6 +89,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 					if failed == 0:
 						print "\nYou won"
+						self.tts.say(word + ", is the word You won!")
 						self.gm.win = 1
 						self.gp.publish(self.gm)
 						raw_input('press enter...')
@@ -91,13 +99,14 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 					# ask the user go guess a character
 					print "Player " + str(self.pl[self.cp].id) + ' your turn\n'
-					print "You have ", + turns, ' guesses remaining'
+					self.tts.say("Player " + str(self.pl[self.cp].id) + ', your turn\n')
+					print "You have, " + str(turns) + ' guesses remaining'
 					print "\nIncorrect guesses: " + misses
 					rospy.sleep(0.2)
 					guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 					print "\n"
 					if guess == "!": # if the user inputs an exclamation mark exit the game
-						break
+						sys.exit()
 					# set the players guess to guesses
 					guesses += guess
 
@@ -110,22 +119,25 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 								self.gm.verify = 0
 								misses += ' ' + char
 								# print wrong
-								print char + " is wrong"
+								print char + " is wrong."
+								self.tts.say(char + ", is wrong.")
 
 							else:
 								self.pl[self.cp].score -= 0.05
 								self.gm.verify = 0
 								print "You already guessed " + char
-
+								self.tts.say("You already guessed, " + char)
 						else:
 							if char in correct:
 								print "You already guessed " + char
+								self.tts.say("You already guessed, " + char)
 								self.pl[self.cp].score -= 0.05
 							else:
 								self.gm.verify = 1
 								self.pl[self.cp].score += 0.1
 								self.pl[self.cp].cg += 1
-								print char + " is correct"
+								print char + " is correct."
+								self.tts.say(char + ", is correct.")
 
 					if len(guess) > 1:
 						self.gm.verify = 2
@@ -137,17 +149,20 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 						self.pl[self.cp].score = 1
 
 					# how many turns are left
-					print "\nYou have", + turns, 'more guesses'
+					print "\nYou have " + str(turns) + ' more guesses'
+					self.tts.say("You have " + str(turns) + ' more guesses')
 
 					# if the turns are equal to zero
 					if turns < 0:
-						print "\nYou Loose"
-						self.gm.win = 0
+						print "\nYou lose! The word was, " + word
+						self.tts.say("You lose! The word was, " + word)
+						raw_input('press enter...')
 
 					self.gm.turn = turns
 					self.gp.publish(self.gm)
 
-					rospy.sleep(2)
+
+					rospy.sleep(1)
 					os.system('clear')
 
 					if self.cp >= self.pCount - 1:
@@ -155,5 +170,21 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					else:
 						self.cp += 1
 
+				for s in self.pl: #resets players correct guesses
+					if tempb < s.cg:
+						tempb = s.id
+
+					s.cg = 0
+
+				best.append(tempb)
+
 			except KeyboardInterrupt:
 				sys.exit()
+
+		filename = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ".txt"
+		file = open(filename, "w")
+		for i in self.pl:
+			file.write(str(i.id) + ": " + str(i.score) + "\n")
+
+		file.write(str(best))
+		file.close()

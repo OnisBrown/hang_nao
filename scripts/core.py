@@ -34,7 +34,7 @@ class Decisions:
 		self.change = True
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-		rospy.Subscriber('/nao_robot/camera/top/image_raw', Image, self.head_view)
+		rospy.Subscriber('/nao_robot/camera/top/camera/image_raw', Image, self.head_view)
 		self.NM.body_reset()
 		self.lock = Lock()
 		pan_start = Thread(target=self.pan)
@@ -50,6 +50,10 @@ class Decisions:
 		idleThread.setDaemon(True)
 		idleThread.start()
 		self.NG.game_start()
+
+	def __del__(self):
+		del self.NG
+		del self.NM
 
 	def pan(self):
 		angle = -1
@@ -96,9 +100,11 @@ class Decisions:
 		for p in self.NG.pl:
 			print str(p.pos)
 
-		raw_input("whelp")
+		raw_input("press enter to begin... ")
 
 	def shutdown(self):
+		del self.NG
+		del self.NM
 		sys.exit()
 
 	def head_view(self, img):
@@ -106,8 +112,8 @@ class Decisions:
 		# goes through all faces in view checking the location of the current players face face if tracking is true
 
 		if self.tracking:
-			tolH = 300  # set tolerance for face displacement
-			tolV = 50
+			tolH = 400  # set tolerance for face displacement
+			tolV = 100
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
@@ -155,7 +161,7 @@ class Decisions:
 			try:
 				if self.change:
 					self.trace()
-					lt = uniform(2.5, 3.5) + self.score  # maintains gaze for random time based on mutual gaze data
+					lt = uniform(1.8, 2.3) + self.score  # maintains gaze for random time based on mutual gaze data
 					time.sleep(lt)
 					if self.change:
 						self.look_away()
@@ -214,7 +220,6 @@ class Decisions:
 	# answer function
 	def answer(self, response):
 		self.change = False  # disengage idle thread
-		rospy.sleep(0.3)
 		self.NM.target()
 		if response.turn > 0:
 			if bool(response.win):
@@ -223,28 +228,25 @@ class Decisions:
 			else:
 				if response.verify == 1:
 					self.yes()
-					return
 
 				elif response.verify == 0:
 					self.no()
-					return
+
+				time.sleep(1)
+				return
 
 		else:
 			self.defeat()
-
+			return
 
 		self.change = True
 
 	def yes(self):
-		if self.score < 0.8:
-			self.NM.head_nod(self.score)
-		else:
-			self.NM.head_nod(self.score)
-			self.NM.cheer()
-			self.NM.body_reset()
+		self.NM.head_nod(self.score)
 
 	def no(self):
-		self.NM.head_shake(self.score)
+		print "eh"
+		#self.NM.head_shake(self.score)
 
 	def victory(self):
 		self.NM.cheer()
@@ -252,8 +254,7 @@ class Decisions:
 		self.NM.body_reset()
 
 	def defeat(self):
-		self.NM.head_shake()
-		self.NM.head_shake()
+		self.look([0.4, 0.0])
 
 
 def my_hook():

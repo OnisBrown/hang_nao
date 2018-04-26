@@ -2,7 +2,7 @@
 roslaunch nao_gazebo_plugin nao_gazebo_plugin_H25.launch
 sudo ln /dev/null /dev/raw1394
 naoqi --verbose --broker-ip 127.0.0.1
-roslaunch nao_bringup nao_full_py.launch nao_ip:=127.0.0.1 roscore_ip:=127.0.0.1
+roslaunch nao_bringup nao_full_py.launch nao_ip:=0.0.0.0 roscore_ip:=0.0.0.0
 rosservice call /body_stiffness/enable "{}"
 roslaunch nao_moveit_config moveit_planner.launch
 
@@ -44,8 +44,28 @@ points:
       nsecs:         0
 ---
 
+#example move message for real robot
+"header:
+  seq: 0
+  stamp: {secs: 0, nsecs: 0}
+  frame_id: ''
+joint_names: ['']
+joint_angles: [0]
+speed: 0.0
+relative: 0"
+
+#example stiffness message for real robot
+"header:
+  seq: 0
+  stamp: {secs: 0, nsecs: 0}
+  frame_id: ''
+name: ['']
+position: [0]
+velocity: [0]
+effort: [0]"
 
 #installation
+export PYTHONPATH=~/naoqi/pynaoqi-python2.7-2.1.2.17-linux64:$PYTHONPATH
 
 # Extra packages
 sudo apt-get -y update
