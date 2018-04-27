@@ -15,6 +15,8 @@ class Player:
 		self.id = 0
 		self.pos = [0, 0]
 		self.cg = 0
+		self.attentiontot = 0
+		self.attention = 0
 
 class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
@@ -42,6 +44,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 	def game_start(self):
 		best = list()
+		mostTime = list()
 		for r in range(1, 4):
 			try:
 
@@ -50,9 +53,14 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "\n__________________________________________\n"
 
 				tempb = 0
+				tempt = 0
+				tempbp = 0
+				temptp = 0
 
-				for s in self.pl: #resets players correct guesses
-					s.cg = 0
+				for s in range(len(self.pl)): #resets players correct guesses
+					self.pl[s].cg = 0
+					self.pl[s].attention = 0
+
 
 				word = self.sh[randint(0, 212)]
 
@@ -102,9 +110,9 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					self.tts.say("Player " + str(self.pl[self.cp].id) + ', your turn\n')
 					print "You have, " + str(turns) + ' guesses remaining'
 					print "\nIncorrect guesses: " + misses
-					rospy.sleep(0.2)
 					guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 					print "\n"
+
 					if guess == "!": # if the user inputs an exclamation mark exit the game
 						sys.exit()
 					# set the players guess to guesses
@@ -172,11 +180,15 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 
 				for s in self.pl: #resets players correct guesses
 					if tempb < s.cg:
-						tempb = s.id
+						tempb = s.cg
+						tempbp = s.id
 
-					s.cg = 0
+					if tempt < s.attention:
+						tempt = s.attention
+						temptp = s.id
 
-				best.append(tempb)
+				best.append(tempbp)
+				mostTime.append(temptp)
 
 			except KeyboardInterrupt:
 				sys.exit()
@@ -184,7 +196,8 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 		filename = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ".txt"
 		file = open(filename, "w")
 		for i in self.pl:
-			file.write(str(i.id) + ": " + str(i.score) + "\n")
+			file.write(str(i.id) + ": " + str(i.score) + "\n" + "attention:" + str(i.attentiontot))
 
 		file.write(str(best))
+		file.write(str(mostTime))
 		file.close()

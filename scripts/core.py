@@ -158,14 +158,15 @@ class Decisions:
 
 	def idling(self):
 		while True:
-			try:
+			try: # maintains gaze for random time based on mutual gaze data, ranges between 1.8 and 3.5
 				if self.change:
 					self.trace()
-					lt = uniform(1.8, 2.3) + self.score  # maintains gaze for random time based on mutual gaze data
+					lt = uniform(1.8, 2.3) + self.score
+					self.NG.pl[self.cp].attention += lt  # add to players attention time
 					time.sleep(lt)
 					if self.change:
 						self.look_away()
-						bt = uniform(2.0, 2.5) - self.score  # time before nao looks somewhere else
+						bt = uniform(2.0, 2.5) - self.score  # time before nao back to the player
 						time.sleep(bt)
 
 			except KeyboardInterrupt:
