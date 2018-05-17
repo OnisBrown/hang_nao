@@ -39,8 +39,9 @@ class Decisions:
 		self.lock = Lock()
 		pan_start = Thread(target=self.pan)
 		pan_start.setDaemon(True)
+		time.sleep(2)
 		pan_start.start()
-		rospy.sleep(1)
+
 		print "Panning for players"
 		pan_start.join()
 		# initialise game subscribers and start the game
@@ -58,9 +59,9 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
-		tol = 150
+		tol = 300
 		self.NM.target([0, angle])
-		rospy.sleep(1.5)
+		time.sleep(1.5)
 		while angle < 1 and found < len(self.NG.pl):
 			try:
 				self.NM.target([0, angle])
@@ -112,8 +113,8 @@ class Decisions:
 		# goes through all faces in view checking the location of the current players face face if tracking is true
 
 		if self.tracking:
-			tolH = 500  # set tolerance for face displacement
-			tolV = 300
+			tolH = 250  # set tolerance for face displacement
+			tolV = 100
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
@@ -150,7 +151,7 @@ class Decisions:
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.4, 4)
+		faces = self.face_cascade.detectMultiScale(gray, 1.4, 5)
 		return faces
 
 	def idling(self):

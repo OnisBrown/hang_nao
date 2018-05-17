@@ -27,7 +27,7 @@ class HangMan:  # code adapted from example from http://www.pythonforbeginners.c
 		self.sh = ah.split()
 		self.pl = list()
 		self.cp = 0
-		IP = "192.168.1.2"
+		IP = "192.168.1.3"
 		self.tts = ALProxy("ALTextToSpeech", IP, 9559)
 
 		# message publishers and message objects

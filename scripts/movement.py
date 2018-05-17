@@ -22,7 +22,7 @@ class Mover:
 		#publishers for the real robot
 		self.pj = rospy.Publisher('/joint_angles', JointAnglesWithSpeed, queue_size = 1)
 		#naoqi motion proxy
-		IP = "192.168.1.2"
+		IP = "192.168.1.3"
 		self.motionProxy = ALProxy("ALMotion", IP, 9559)
 
 		# subscribers for robot sensors
