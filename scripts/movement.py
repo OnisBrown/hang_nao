@@ -22,7 +22,7 @@ class Mover:
 		#publishers for the real robot
 		self.pj = rospy.Publisher('/joint_angles', JointAnglesWithSpeed, queue_size = 1)
 		#naoqi motion proxy
-		IP = "192.168.1.3"
+		IP = "192.168.1.2"
 		self.motionProxy = ALProxy("ALMotion", IP, 9559)
 
 		# subscribers for robot sensors
@@ -31,14 +31,14 @@ class Mover:
 
 		# message objects and default speed intervals
 		self.ja = JointAnglesWithSpeed()
-		self.interval = 0.5 # time between actions
+		self.interval = 0.3 # time between actions
 
 		# 2.0857 is leftmost radian robot can turn it's head
 		# -2.0857 is rightmost radian robot can turn it's head
 		# -0.6720 is uppermost radian robot can tilt it's head
 		# 0.5149 is lowermost radian robot can tilt it's head
-		self.limitH = 2
-		self.limitV = 0.4
+		self.limitH = 1.5
+		self.limitV = 0.45
 		self.HY = 0.0
 		self.HX = 0.0
 		self.speed = 0.1 # global move speed for head joints, other joints are specified
@@ -280,10 +280,8 @@ class Mover:
 				tx = -1 *self.limitH
 
 		pos = [ty, tx]
-		self.interval = 0.3
 		self.speed = 0.05
 		self.move(pos)
-		time.sleep(self.interval)
 
 	def target(self, pos=None):
 		try:

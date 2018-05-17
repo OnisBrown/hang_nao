@@ -9,6 +9,7 @@ import os
 import datetime
 from naoqi import ALProxy
 
+
 class Player:
 	def __init__(self):
 		self.score = 0.7
@@ -18,17 +19,18 @@ class Player:
 		self.attentiontot = 0
 		self.attention = 0
 
-class HangMan:  # code built on example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
+
+class HangMan:  # code adapted from example from http://www.pythonforbeginners.com/code-snippets-source-code/game-hangman
 	def __init__(self):
 		lh = open("wordlist.txt", "r")
 		ah = lh.read()
 		self.sh = ah.split()
 		self.pl = list()
 		self.cp = 0
-		IP = "192.168.1.3"
+		IP = "192.168.1.2"
 		self.tts = ALProxy("ALTextToSpeech", IP, 9559)
 
-		#message publishers and message objects
+		# message publishers and message objects
 		self.gp = rospy.Publisher('/game/GameState', GameState, queue_size=1)
 		self.tp = rospy.Publisher('/game/NewTurn', NewTurn, queue_size=1)
 		self.gm = GameState()
@@ -57,10 +59,9 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				tempbp = 0
 				temptp = 0
 
-				for s in range(len(self.pl)): #resets players correct guesses
+				for s in range(len(self.pl)):  # resets players correct guesses
 					self.pl[s].cg = 0
 					self.pl[s].attention = 0
-
 
 				word = self.sh[randint(0, 212)]
 
@@ -69,7 +70,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				print "Start guessing..."
 				rospy.sleep(1.0)
 
-				#creates variables to track guesses
+				# creates variables to track guesses
 				guesses = ''
 				misses = ''
 				correct = ''
@@ -79,7 +80,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 				self.gm.win = 0
 
 
-				#check if the turns are more than zero
+				# check if the turns are more than zero
 				while turns > 0:
 					self.tm.pt = self.cp
 					self.tp.publish(self.tm)
@@ -113,7 +114,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					guess = raw_input("\nmake a guess (multiple characters or the word):\n ")
 					print "\n"
 
-					if guess == "!": # if the user inputs an exclamation mark exit the game
+					if guess == "!":  # if the user inputs an exclamation mark exit the game
 						sys.exit()
 					# set the players guess to guesses
 					guesses += guess
@@ -178,7 +179,7 @@ class HangMan:  # code built on example from http://www.pythonforbeginners.com/c
 					else:
 						self.cp += 1
 
-				for s in self.pl: #resets players correct guesses
+				for s in self.pl:  # resets players correct guesses
 					if tempb < s.cg:
 						tempb = s.cg
 						tempbp = s.id

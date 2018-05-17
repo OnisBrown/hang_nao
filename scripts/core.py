@@ -34,13 +34,13 @@ class Decisions:
 		self.change = True
 		self.tracking = False
 		self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-		rospy.Subscriber('/nao_robot/camera/top/camera/image_raw', Image, self.head_view)
+		rospy.Subscriber('/nao_robot/camera/top/camera/image_raw', Image, self.head_view,  queue_size=30)
 		self.NM.body_reset()
 		self.lock = Lock()
 		pan_start = Thread(target=self.pan)
 		pan_start.setDaemon(True)
-		time.sleep(1)
 		pan_start.start()
+		rospy.sleep(1)
 		print "Panning for players"
 		pan_start.join()
 		# initialise game subscribers and start the game
@@ -58,9 +58,9 @@ class Decisions:
 	def pan(self):
 		angle = -1
 		found = 0
-		tol = 500
+		tol = 150
 		self.NM.target([0, angle])
-		time.sleep(1.5)
+		rospy.sleep(1.5)
 		while angle < 1 and found < len(self.NG.pl):
 			try:
 				self.NM.target([0, angle])
@@ -72,7 +72,7 @@ class Decisions:
 					cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 					# gets coordinates based on centre of the face found
 					x += w / 2
-					y += h / 2
+					y += h / 3
 
 					diffX = float(((639-x)*self.unitX))
 					diffY = float(((y - 479)*self.unitY))
@@ -85,12 +85,12 @@ class Decisions:
 					if found == 0:
 						self.NG.pl[found].pos = Fpos
 						found += 1
-						rospy.sleep(0.2)
+						rospy.sleep(0.5)
 
 					elif (self.NG.pl[found-1].pos[1] - float(tol * self.unitX)) > Fpos[1] or Fpos[1] > (self.NG.pl[found-1].pos[1] + float(tol * self.unitX)):
 						self.NG.pl[found].pos = Fpos
 						found += 1
-						rospy.sleep(0.2)
+						rospy.sleep(0.5)
 
 				angle += float(100*self.unitX)  # turns 50 units per cycle
 			except KeyboardInterrupt:
@@ -112,15 +112,11 @@ class Decisions:
 		# goes through all faces in view checking the location of the current players face face if tracking is true
 
 		if self.tracking:
-			tolH = 400  # set tolerance for face displacement
-			tolV = 100
+			tolH = 500  # set tolerance for face displacement
+			tolV = 300
 			faces = self.face_detect()
 			Fpos = self.NG.pl[self.cp].pos
 			temp = [0.0, 0.0]
-			diffX = list()
-			diffY = list()
-			cX = self.NM.HX
-			cY = self.NM.HY
 
 			self.NM.target()  # if a target isn't specified then the mover class uses player position.
 
@@ -128,20 +124,21 @@ class Decisions:
 				cv2.rectangle(self.image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 				# gets coordinates based on centre of the face found
 				fx = x + w / 2
-				fy = y + h / 2
+				fy = y + h / 3
 
 				temp[0] = float(((fy - 479) * self.unitY))
 				temp[1] = float(((639 - fx) * self.unitX))
 
-				if abs(temp[0]) < tolV * self.unitY:
-					diffY.append(float(((fy - 479) * self.unitY)))
-				if abs(temp[1]) < tolH * self.unitX:
-					diffX.append(float(((639 - fx) * self.unitX)))
+				print "Fpos: " + str(Fpos) + " temp " + str(temp)
 
-			# finds the closest face to the original position
-			if len(diffX) > 0 and len(diffY) > 0:
-				Fpos[1] = cX + min(diffX, key=abs)
-				Fpos[0] = cY + min(diffY, key=abs)
+				if abs(temp[0] - Fpos[0]) < (tolV * self.unitY):
+					Fpos[0] = temp[0]
+				if abs(temp[1] - Fpos[1]) < (tolH * self.unitX):
+					Fpos[1] = temp[1]
+
+				print "new Fpos: " + str(Fpos)
+
+				# finds the closest face to the original position
 				self.NG.pl[self.cp].pos = Fpos
 				self.NM.pp = self.NG.pl[self.cp].pos
 
@@ -153,14 +150,14 @@ class Decisions:
 
 	def face_detect(self):
 		gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-		faces = self.face_cascade.detectMultiScale(gray, 1.1, 5)
+		faces = self.face_cascade.detectMultiScale(gray, 1.4, 4)
 		return faces
 
 	def idling(self):
 		while True:
 			try: # maintains gaze for random time based on mutual gaze data, ranges between 1.8 and 3.5
 				if self.change:
-					self.trace()
+					self.tracking = True
 					lt = uniform(1.8, 2.3) + self.score
 					self.NG.pl[self.cp].attention += lt  # add to players attention time
 					time.sleep(lt)
@@ -173,9 +170,6 @@ class Decisions:
 				self.shutdown()
 
 		return
-
-	def trace(self):
-		self.tracking = True
 
 	def look(self, pos):
 		self.NM.target(pos)
@@ -233,7 +227,7 @@ class Decisions:
 				elif response.verify == 0:
 					self.no()
 
-				time.sleep(1)
+				rospy.sleep(1)
 				return
 
 		else:
@@ -243,11 +237,12 @@ class Decisions:
 		self.change = True
 
 	def yes(self):
-		self.NM.head_nod(self.score)
+		print " "
+		# self.NM.head_nod(self.score)
 
 	def no(self):
-		print "eh"
-		#self.NM.head_shake(self.score)
+		print " "
+		# self.NM.head_shake(self.score)
 
 	def victory(self):
 		self.NM.cheer()
